@@ -373,6 +373,17 @@ function Receipt({ result }) {
   const methodLabel = METHODS.find((m) => m.id === result.method).label + (result.cardLast4 ? ` •••• ${result.cardLast4}` : "");
   const note = result.mode === "equal" ? `გაყოფილია ${result.guests} ნაწილად` : result.mode === "item" ? "გადახდილია არჩეული კერძები" : null;
   const lines = result.mode === "item" ? OPEN_BILL.filter((l) => result.picked.includes(l.id)) : OPEN_BILL;
+
+  const receiptItems = [
+    { type: "header", label: VENUE.name, subLabel: `მაგიდა ${result.guests}` },
+    ...lines.map((l) => ({ type: "line", qty: l.qty, name: l.name, total: l.total })),
+    { type: "divider" },
+    { type: "row", label: "თქვენი წილი", value: result.share },
+    { type: "row", label: "დანამატი", value: result.tip },
+    { type: "total", label: methodLabel, value: result.total },
+    ...(note ? [{ type: "note", text: note }] : [])
+  ];
+
   return (
     <div style={{ borderRadius: R.lg, background: c.bg, boxShadow: CARD, overflow: "hidden" }}>
       <button onClick={() => setOpen((v) => !v)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: `0 ${SP.lg}px`, height: 56, background: "none", border: "none", cursor: "pointer" }}>
@@ -381,21 +392,94 @@ function Receipt({ result }) {
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} style={{ overflow: "hidden" }}>
-            <div style={{ padding: `0 ${SP.lg}px ${SP.lg}px` }}>
-              <div style={{ height: 1, background: c.div, marginBottom: SP.sm }} />
-              {lines.map((l) => (
-                <div key={l.id} style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: `${SP.sm}px 0` }}>
-                  <span style={{ fontSize: 13, color: c.text }}><span style={{ ...num, color: c.text2 }}>{l.qty}×</span> {l.name}</span>
-                  <Money value={l.total} size={13} />
-                </div>
-              ))}
-              <div style={{ height: 1, background: c.div, margin: `${SP.sm}px 0` }} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 4 }}><span style={{ fontSize: 13, color: c.text2 }}>თქვენი წილი</span><Money value={result.share} size={13} /></div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8 }}><span style={{ fontSize: 13, color: c.text2 }}>დანამატი</span><Money value={result.tip} size={13} /></div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: SP.md }}><span style={{ fontSize: 15, fontWeight: 600, color: c.text }}>გადახდილია, {methodLabel}</span><Money value={result.total} size={16} weight={700} /></div>
-              {note && <div style={{ fontSize: 12, color: c.text2, marginTop: SP.sm }}>{note}</div>}
-            </div>
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} style={{ overflow: "visible" }}>
+            <motion.div style={{ position: "relative", padding: `0 ${SP.lg}px ${SP.lg}px`, background: "#F9F9F9", perspective: 1200 }}>
+              {/* Receipt paper effect */}
+              <motion.div
+                initial={{ rotateX: 15, y: 20 }}
+                animate={{ rotateX: 0, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                style={{
+                  transformStyle: "preserve-3d",
+                  background: "#FAFAFA",
+                  borderRadius: 2,
+                  padding: `${SP.md}px ${SP.md}px ${SP.lg}px`,
+                  boxShadow: "0 10px 40px rgba(26,26,26,0.18), 0 2px 8px rgba(26,26,26,0.12)",
+                  position: "relative",
+                  marginTop: 8
+                }}>
+
+                {/* Printer effect top */}
+                <div style={{ position: "absolute", top: -6, left: 0, right: 0, height: 6, background: "linear-gradient(to bottom, rgba(0,0,0,0.06), transparent)", borderRadius: "2px 2px 0 0" }} />
+
+                {/* Receipt content - line by line animation */}
+                {receiptItems.map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.08, duration: 0.35, ease: "easeOut" }}
+                    style={{ overflow: "hidden" }}>
+
+                    {item.type === "header" && (
+                      <div style={{ textAlign: "center", paddingBottom: SP.sm, borderBottom: `1px dashed ${c.line}`, marginBottom: SP.sm }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: c.text, ...num }}>{item.label}</div>
+                        <div style={{ fontSize: 11, color: c.text2, marginTop: 2 }}>{item.subLabel}</div>
+                        <div style={{ fontSize: 10, color: c.text3, marginTop: 4 }}>---</div>
+                      </div>
+                    )}
+
+                    {item.type === "line" && (
+                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: `${SP.xs}px 0`, fontSize: 12, fontFamily: SANS, letterSpacing: 0.3 }}>
+                        <span style={{ color: c.text, flex: 1 }}>
+                          <span style={{ ...num, color: c.text2, marginRight: 4 }}>{item.qty}×</span>
+                          {item.name}
+                        </span>
+                        <span style={{ ...num, color: c.text, marginLeft: SP.sm, whiteSpace: "nowrap", fontWeight: 500 }}>{fmt(item.total)} ₾</span>
+                      </div>
+                    )}
+
+                    {item.type === "divider" && (
+                      <div style={{ borderTop: `1px dashed ${c.line}`, margin: `${SP.sm}px 0` }} />
+                    )}
+
+                    {item.type === "row" && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `${SP.xs}px 0`, fontSize: 12 }}>
+                        <span style={{ color: c.text2 }}>{item.label}</span>
+                        <span style={{ ...num, color: item.value > 0 ? c.text : c.text2, fontWeight: 500 }}>{fmt(item.value)} ₾</span>
+                      </div>
+                    )}
+
+                    {item.type === "total" && (
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `${SP.md}px 0 0`, paddingTop: SP.sm, borderTop: `2px solid ${c.text}`, fontSize: 13, fontWeight: 700 }}>
+                        <span style={{ color: c.text, ...num }}>გადახდილია</span>
+                        <span style={{ ...num, color: c.primary, fontSize: 14 }}>{fmt(item.value)} ₾</span>
+                      </div>
+                    )}
+
+                    {item.type === "note" && (
+                      <div style={{ fontSize: 11, color: c.text2, marginTop: SP.sm, fontStyle: "italic", textAlign: "center" }}>({item.text})</div>
+                    )}
+                  </motion.div>
+                ))}
+
+                {/* Receipt bottom curl effect */}
+                <motion.div
+                  initial={{ scaleY: 0.8, opacity: 0 }}
+                  animate={{ scaleY: 1, opacity: 1 }}
+                  transition={{ delay: receiptItems.length * 0.08 + 0.2, duration: 0.4 }}
+                  style={{
+                    position: "absolute",
+                    bottom: -12,
+                    left: 0,
+                    right: 0,
+                    height: 12,
+                    background: "linear-gradient(to bottom, #FAFAFA, #F5F5F5)",
+                    clipPath: "polygon(0 0, 100% 0, 95% 100%, 5% 100%)",
+                    boxShadow: "0 4px 12px rgba(26,26,26,0.12)"
+                  }} />
+              </motion.div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
