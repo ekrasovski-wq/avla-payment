@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>ავლა · Avla</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "framer-motion": "https://esm.sh/framer-motion@11.3.19?external=react,react-dom"
+  }
+}
+</script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bone:    '#F4F0E7',
+          bone2:   '#ECE6D8',
+          ink:     '#0E0D14',
+          ink2:    '#2B2836',
+          violet:  '#6E6BB5',
+          violet2: '#4F4C87',
+          mute:    '#8A8698',
+          line:    'rgba(14,13,20,0.12)',
+        },
+        fontFamily: {
+          sans: ['"Noto Sans Georgian"', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  html, body { margin:0; padding:0; background:#0A0910; }
+  * { -webkit-tap-highlight-color: transparent; box-sizing:border-box; }
+  body { font-family:"Noto Sans Georgian", system-ui, sans-serif; overscroll-behavior:none; }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  ::selection { background:#6E6BB5; color:#0E0D14; }
+  input { font-family:inherit; }
+
+  /* Chamfer system — derived from the mark's 45° cuts */
+  .cut    { clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+  .cut-sm { clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+  .cut-lg { clip-path: polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px); }
+
+  #boot { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:#0E0D14; color:#6E6BB5; z-index:9999; font-family:"JetBrains Mono", monospace; letter-spacing:.5em; font-size:12px; }
+  #boot b { width:6px;height:6px;background:#6E6BB5;display:inline-block;margin-left:12px;animation:bp 1.1s infinite ease-in-out; }
+  @keyframes bp { 0%,100%{opacity:.2;transform:rotate(0)} 50%{opacity:1;transform:rotate(45deg)} }
+</style>
+</head>
+<body>
+<div id="boot">AVLA<b></b></div>
+<div id="root"></div>
+
+<script type="text/babel" data-type="module" data-presets="react">
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { createRoot } from 'react-dom/client';
+import { motion, AnimatePresence, animate } from 'framer-motion';
+
+/* ============================== TOKENS ============================== */
+const C = { bone:'#F4F0E7', bone2:'#ECE6D8', ink:'#0E0D14', ink2:'#2B2836', violet:'#6E6BB5', violet2:'#4F4C87', mute:'#8A8698' };
+const EASE = [0.7, 0, 0.16, 1];           // crisp, architectural
+const SPRING = { type:'spring', stiffness:380, damping:34 };
+const fmt = (n) => Number(n).toFixed(2);
+
+const VENUE = { name:'სუფრა', area:'ძველი თბილისი', table:14 };
+
+/* ============================== THE SEAL ============================== */
+/* Four modular meander units, 4-fold rotational symmetry — reconstruction of the Avla mark. */
+function SealUnit({ fill }) {
+  return (
+    <g fill={fill}>
+      <rect x="20" y="20" width="92" height="22" />
+      <rect x="20" y="20" width="22" height="74" />
+      <rect x="54" y="54" width="58" height="22" />
+      <rect x="54" y="54" width="22" height="40" />
+    </g>
+  );
+}
+function Seal({ size = 96, fg = C.violet, bg = 'transparent', rule = true }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 240 240" style={{ display:'block' }}>
+      {bg !== 'transparent' && <rect x="0" y="0" width="240" height="240" fill={bg} />}
+      {[0, 90, 180, 270].map(r => (
+        <g key={r} transform={`rotate(${r} 120 120)`}><SealUnit fill={fg} /></g>
+      ))}
+      {rule && <rect x="0" y="114" width="240" height="12" fill={bg === 'transparent' ? C.ink : bg} opacity={bg === 'transparent' ? 1 : 0} />}
+      {rule && <rect x="0" y="116" width="240" height="8" fill={C.ink} />}
+    </svg>
+  );
+}
+function SealStamp({ size = 132 }) {
+  return (
+    <motion.svg width={size} height={size} viewBox="0 0 240 240"
+      initial={{ rotate:-95, scale:0.35, opacity:0 }}
+      animate={{ rotate:[ -95, 8, 0 ], scale:[0.35, 1.06, 1], opacity:1 }}
+      transition={{ duration:1.05, ease:EASE, times:[0,0.7,1] }}>
+      {[0, 90, 180, 270].map((r, i) => (
+        <motion.g key={r} transform={`rotate(${r} 120 120)`}
+          initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.12*i, duration:0.3 }}>
+          <SealUnit fill={C.violet} />
+        </motion.g>
+      ))}
+      <rect x="0" y="116" width="240" height="8" fill={C.bone} opacity="0.18" />
+    </motion.svg>
+  );
+}
+
+/* ============================== ICONS (custom, orthogonal) ============================== */
+/* Unified with AvlaIcons.jsx — one orthogonal, square-cut geometry across the brand. */
+const sw = { fill:'none', stroke:'currentColor', strokeWidth:2.4, strokeLinecap:'square', strokeLinejoin:'miter' };
+const Arrow = ({ s=20, left=false }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" style={{ transform:left?'scaleX(-1)':'none' }}>
+    <path d="M3.5 12 H19.5" {...sw} /><path d="M13 5.5 L19.5 12 L13 18.5" {...sw} />
+  </svg>
+);
+const Plus  = ({ s=20 }) => (<svg width={s} height={s} viewBox="0 0 24 24"><path d="M12 4.5 V19.5 M4.5 12 H19.5" {...sw} /></svg>);
+const Minus = ({ s=20 }) => (<svg width={s} height={s} viewBox="0 0 24 24"><path d="M4.5 12 H19.5" {...sw} /></svg>);
+const Check = ({ s=20 }) => (<svg width={s} height={s} viewBox="0 0 24 24"><path d="M4.5 12.5 L9.5 17.5 L19.5 6" {...sw} /></svg>);
+const Close = ({ s=20 }) => (<svg width={s} height={s} viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18" {...sw} /></svg>);
+const Spark = ({ s=16 }) => (<svg width={s} height={s} viewBox="0 0 24 24"><path d="M12 3 V21 M3 12 H21 M5.6 5.6 L18.4 18.4 M18.4 5.6 L5.6 18.4" {...sw} strokeWidth={1.6} /></svg>);
+
+/* ============================== PRIMITIVES ============================== */
+function Eyebrow({ children, color = C.mute, className = '' }) {
+  return <div className={`uppercase font-bold ${className}`} style={{ color, letterSpacing:'0.26em', fontSize:11 }}>{children}</div>;
+}
+function Meta({ children, color = C.mute, className = '' }) {
+  return <span className={`font-mono uppercase ${className}`} style={{ color, letterSpacing:'0.18em', fontSize:10.5 }}>{children}</span>;
+}
+function Rule({ color = 'rgba(14,13,20,0.12)' }) { return <div style={{ height:1, background:color }} />; }
+
+function CutBox({ children, fill = C.bone, border = C.ink, size = 'cut', className = '', wrapClass = '', style = {}, onClick, tap = false }) {
+  const cls = size === 'lg' ? 'cut-lg' : size === 'sm' ? 'cut-sm' : 'cut';
+  const Comp = tap ? motion.button : 'div';
+  const extra = tap ? { whileTap:{ scale:0.985 } } : {};
+  return (
+    <Comp onClick={onClick} {...extra} className={`relative block w-full text-left ${cls} ${wrapClass}`} style={{ background:border, ...style }}>
+      <span className={`absolute ${cls}`} style={{ inset:1.6, background:fill, display:'block' }} />
+      <span className={`relative block ${className}`}>{children}</span>
+    </Comp>
+  );
+}
+
+function AnimatedNumber({ value, className = '', style = {} }) {
+  const [d, setD] = useState(value);
+  const prev = useRef(value);
+  useEffect(() => {
+    const c = animate(prev.current, value, { duration:0.5, ease:EASE, onUpdate:v => setD(v) });
+    prev.current = value; return () => c.stop();
+  }, [value]);
+  return <span className={`font-mono ${className}`} style={style}>{fmt(d)}</span>;
+}
+
+function Stepper({ value, setValue, min = 1, dark = false }) {
+  const fg = dark ? C.bone : C.ink;
+  const btn = "w-9 h-9 grid place-items-center active:scale-90 transition-transform cut-sm";
+  return (
+    <div className="flex items-center gap-1.5">
+      <button onClick={() => setValue(Math.max(min, value - 1))} className={btn} style={{ background:dark?'rgba(255,255,255,0.08)':C.bone2, color:fg }}><Minus s={16} /></button>
+      <div className="w-7 text-center overflow-hidden h-6 relative">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span key={value} initial={{ y:13, opacity:0 }} animate={{ y:0, opacity:1 }} exit={{ y:-13, opacity:0 }}
+            transition={{ duration:0.2, ease:EASE }} className="block font-mono font-bold text-[16px] leading-6" style={{ color:fg }}>{value}</motion.span>
+        </AnimatePresence>
+      </div>
+      <button onClick={() => setValue(value + 1)} className={btn} style={{ background:C.ink, color:C.bone }}><Plus s={16} /></button>
+    </div>
+  );
+}
+
+/* corner register marks — print-craft precision */
+function Register({ color = 'rgba(244,240,231,0.25)' }) {
+  const m = (s) => <span className="absolute" style={{ ...s, width:9, height:9 }}>
+    <span className="absolute" style={{ left:0, top:0, width:9, height:1, background:color }} />
+    <span className="absolute" style={{ left:0, top:0, width:1, height:9, background:color }} />
+  </span>;
+  return null;
+}
+
+/* ============================== DATA ============================== */
+const SPICE = { id:'spice', title:'სიმწვავე', type:'scale', required:false, def:'med',
+  choices:[ {id:'mild',label:'მსუბუქი'}, {id:'med',label:'საშუალო'}, {id:'hot',label:'ცხარე'} ] };
+
+const CHAPTERS = [
+  { id:'pop',     label:'რჩეული',   en:'SELECTED' },
+  { id:'start',   label:'სტარტერი', en:'TO BEGIN' },
+  { id:'main',    label:'მთავარი',  en:'MAINS' },
+  { id:'mwadi',   label:'მანგალი',  en:'FROM THE FIRE' },
+  { id:'salad',   label:'სალათი',   en:'GREENS' },
+  { id:'dessert', label:'დესერტი',  en:'TO CLOSE' },
+  { id:'drink',   label:'სარდაფი',  en:'CELLAR' },
+];
+
+const MENU = [
+  { id:'khinkali', cat:['pop','main'], name:'ხინკალი კალმახით', desc:'ხელით ნაზელი ცომი, მთის კალმახის ნაზი შიგთავსით', price:1.80, unit:'ცალი', note:'ყველაზე შეკვეთადი', pair:'wine',
+    options:[ { id:'count', title:'ულუფა', type:'single', required:true, replacesBase:true, def:'7', choices:[ {id:'5',label:'5 ცალი',price:9.00},{id:'7',label:'7 ცალი',price:12.60},{id:'10',label:'10 ცალი',price:18.00} ] },
+      { id:'addon', title:'დამატება', type:'multi', required:false, choices:[ {id:'butter',label:'გამდნარი კარაქი',price:1.50},{id:'ajika',label:'ცხარე აჯიკა',price:2.00} ] } ] },
+  { id:'achma', cat:['pop'], name:'აჭარული ხაჭაპური', desc:'გახსნილი ნავი, კარაქი და ცოცხალი გული', price:16.00, unit:'ულუფა', note:'შეფის ხელით', options:[] },
+  { id:'chaqapuli', cat:['main'], name:'ჩაქაფული', desc:'ახალგაზრდა კრავი, ტყემალი, ტარხუნა, თეთრი ღვინო', price:28.00, unit:'ულუფა', pair:'wine', options:[ SPICE ] },
+  { id:'mwadi-ghori', cat:['mwadi','pop'], name:'ღორის მწვადი', desc:'შეშის მანგალზე, ბროწეულის წვენით', price:24.00, unit:'შამფური', pair:'wine',
+    options:[ SPICE, { id:'side', title:'გარნირი', type:'single', required:true, def:'none', choices:[ {id:'none',label:'უგარნირო',price:0},{id:'potato',label:'შემწვარი კარტოფილი',price:6.00},{id:'pkhali',label:'ფხალის ასორტი',price:7.00} ] } ] },
+  { id:'mwadi-mwvadi', cat:['mwadi'], name:'ხბოს მწვადი', desc:'ნაზი ფილე, მარილწყალში შემოწვისას', price:32.00, unit:'შამფური', options:[ SPICE ] },
+  { id:'badrijani', cat:['start','pop'], name:'ბადრიჯანი ნიგვზით', desc:'კლასიკური რულეტი, ბროწეულის მარცვლებით', price:12.00, unit:'ულუფა', options:[] },
+  { id:'lobio', cat:['start'], name:'ლობიო ქოთანში', desc:'ცხელ თიხის ქოთანში, ცხელი მჭადით', price:14.00, unit:'ქოთანი', options:[] },
+  { id:'pkhali', cat:['start','salad'], name:'ფხალის ასორტი', desc:'სამ ფერად — ჭარხალი, ისპანახი, წიწმატი', price:13.00, unit:'ასორტი', options:[] },
+  { id:'salad', cat:['salad'], name:'სეზონური სალათი', desc:'პომიდორი, კიტრი, ხეხილი, ნიგვზის სოუსი', price:11.00, unit:'ულუფა', options:[] },
+  { id:'churchkhela', cat:['dessert','pop'], name:'ჩურჩხელა', desc:'კახური, ნიგვზითა და საფერავის ბადაგით', price:6.00, unit:'ცალი', options:[] },
+  { id:'icecream', cat:['dessert'], name:'საფერავის სორბეტი', desc:'ღვინის ნაყინი, ცოცხალი ვაზის ფოთლით', price:9.00, unit:'ულუფა', note:'ახალი', options:[] },
+  { id:'limonati', cat:['drink'], name:'ტარხუნის ლიმონათი', desc:'ქართული, ნამდვილ შაქარზე', price:5.00, unit:'ბოთლი', options:[] },
+  { id:'wine', cat:['drink','pop'], name:'საფერავი — ჭიქა', desc:'ქვევრის მშრალი წითელი, კახეთი', price:12.00, unit:'ჭიქა', note:'ქვევრი', options:[] },
+];
+const byId = (id) => MENU.find(m => m.id === id);
+
+/* ============================== PRICING ============================== */
+function unitPrice(item, sel) {
+  let total = 0, replaced = false;
+  (item.options || []).forEach(o => {
+    if (o.type === 'single') { const c = o.choices.find(x => x.id === sel[o.id]); if (c) { total += c.price; if (o.replacesBase) replaced = true; } }
+    else if (o.type === 'multi') { (sel[o.id] || []).forEach(id => { const c = o.choices.find(x => x.id === id); if (c) total += c.price; }); }
+  });
+  return replaced ? total : item.price + total;
+}
+function selLabel(item, sel) {
+  const parts = [];
+  (item.options || []).forEach(o => {
+    const v = sel[o.id]; if (!v) return;
+    if (o.type === 'multi') v.forEach(id => { const c = o.choices.find(x => x.id === id); if (c) parts.push(c.label); });
+    else { const c = o.choices.find(x => x.id === v); if (c && !(o.id==='side' && c.id==='none')) parts.push(c.label); }
+  });
+  return parts.join(' · ');
+}
+
+/* ============================== ARRIVAL ============================== */
+function Arrival({ onEnter, round }) {
+  return (
+    <motion.div key="arrival" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} transition={{ duration:0.5 }}
+      className="relative h-full w-full overflow-hidden" style={{ background:C.ink, color:C.bone }}>
+      {/* structural frame */}
+      <div className="absolute inset-5 pointer-events-none" style={{ border:'1px solid rgba(244,240,231,0.10)' }} />
+      <div className="relative h-full flex flex-col px-9 pt-[max(34px,env(safe-area-inset-top))] pb-[max(30px,env(safe-area-inset-bottom))]">
+        <div className="flex items-center justify-between">
+          <Meta color="rgba(244,240,231,0.55)">AVLA — ქართული სუფრა</Meta>
+          <div className="cut-sm px-3 py-1.5" style={{ border:`1px solid ${C.violet}` }}>
+            <Meta color={C.violet}>T-{VENUE.table} · R{round}</Meta>
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-center">
+          <motion.div initial={{ y:14, opacity:0 }} animate={{ y:0, opacity:1 }} transition={{ delay:0.2, duration:0.7, ease:EASE }}>
+            <Seal size={104} />
+          </motion.div>
+          <motion.h1 initial={{ y:18, opacity:0 }} animate={{ y:0, opacity:1 }} transition={{ delay:0.34, duration:0.7, ease:EASE }}
+            className="font-black mt-9 leading-[0.98] tracking-tight" style={{ fontSize:'clamp(40px,12.5vw,54px)' }}>
+            სუფრა<br/>გაშლილია<br/><span style={{ color:C.violet }}>თქვენთვის</span>
+          </motion.h1>
+          <motion.p initial={{ y:18, opacity:0 }} animate={{ y:0, opacity:1 }} transition={{ delay:0.46, duration:0.7, ease:EASE }}
+            className="mt-6 text-[14.5px] leading-relaxed max-w-[20rem]" style={{ color:'rgba(244,240,231,0.62)' }}>
+            შეუკვეთეთ და გადაიხადეთ მაგიდიდან. სტუმარს მასპინძელი ხვდება — დანარჩენს ჩვენ მოვაგვარებთ.
+          </motion.p>
+        </div>
+
+        <motion.div initial={{ y:20, opacity:0 }} animate={{ y:0, opacity:1 }} transition={{ delay:0.6, duration:0.6, ease:EASE }}>
+          <button onClick={onEnter} className="group w-full h-16 cut flex items-center justify-between pl-7 pr-3 active:scale-[0.985] transition-transform" style={{ background:C.bone, color:C.ink }}>
+            <span className="font-extrabold text-[17px]">მენიუს გახსნა</span>
+            <span className="w-11 h-11 grid place-items-center cut-sm group-active:translate-x-1 transition-transform" style={{ background:C.ink, color:C.bone }}><Arrow s={20} /></span>
+          </button>
+          <div className="flex items-center justify-center gap-2 mt-5"><Meta color="rgba(244,240,231,0.4)">დაცული გადახდა · რეგისტრაცია არ საჭიროებს</Meta></div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ============================== MENU ============================== */
+function Menu({ active, setActive, onOpen, cartCount, cartTotal, onCart, round }) {
+  const items = useMemo(() => MENU.filter(m => m.cat.includes(active)), [active]);
+  const chap = CHAPTERS.find(c => c.id === active);
+  const idx = String(CHAPTERS.indexOf(chap) + 1).padStart(2, '0');
+
+  return (
+    <motion.div key="menu" initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:-20 }} transition={{ duration:0.34, ease:EASE }}
+      className="h-full w-full flex flex-col" style={{ background:C.bone }}>
+      {/* header */}
+      <div className="px-6 pt-[max(20px,env(safe-area-inset-top))] pb-0 sticky top-0 z-20" style={{ background:C.bone }}>
+        <div className="flex items-end justify-between pb-3">
+          <div>
+            <Meta>{VENUE.area}</Meta>
+            <h2 className="font-black text-ink text-[26px] leading-none mt-1">{VENUE.name}</h2>
+          </div>
+          <div className="cut-sm px-3 py-1.5" style={{ background:C.ink }}><Meta color={C.violet}>მაგიდა {VENUE.table} · რაუნდი {round}</Meta></div>
+        </div>
+        <Rule color="rgba(14,13,20,0.85)" />
+        {/* chapter index */}
+        <div className="no-scrollbar flex gap-5 overflow-x-auto py-3 -mx-1 px-1">
+          {CHAPTERS.map(c => {
+            const on = c.id === active;
+            return (
+              <button key={c.id} onClick={() => setActive(c.id)} className="relative shrink-0 pb-1">
+                <span className="block text-[14px] font-bold transition-colors whitespace-nowrap" style={{ color:on?C.ink:C.mute }}>{c.label}</span>
+                {on && <motion.span layoutId="chapbar" transition={SPRING} className="absolute left-0 right-0 -bottom-0.5" style={{ height:3, background:C.violet }} />}
+              </button>
+            );
+          })}
+        </div>
+        <Rule color="rgba(14,13,20,0.85)" />
+      </div>
+
+      {/* list */}
+      <div className="flex-1 overflow-y-auto no-scrollbar px-6 pt-6 pb-36">
+        <AnimatePresence mode="wait">
+          <motion.div key={active} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }} transition={{ duration:0.28, ease:EASE }}>
+            <div className="flex items-start gap-4 mb-6">
+              <span className="font-mono font-bold leading-none" style={{ color:C.violet, fontSize:40 }}>{idx}</span>
+              <div className="pt-1"><Meta color={C.mute}>{chap.en}</Meta><div className="font-extrabold text-ink text-[19px] leading-tight">{chap.label}</div></div>
+            </div>
+            <div className="flex flex-col">
+              {items.map((it, i) => (
+                <motion.button key={it.id} onClick={() => onOpen(it)} initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*0.04, duration:0.4, ease:EASE }}
+                  whileTap={{ scale:0.99 }} className="text-left py-4 group" style={{ borderTop:i===0?'none':'1px solid rgba(14,13,20,0.12)' }}>
+                  <div className="flex items-baseline gap-3">
+                    <h4 className="font-bold text-ink text-[16.5px] leading-snug flex-1">{it.name}</h4>
+                    <span className="flex-1 self-end mb-1 mx-1" style={{ borderBottom:'1px dotted rgba(14,13,20,0.30)' }} />
+                    <span className="font-mono font-bold text-ink text-[15px] whitespace-nowrap">{fmt(it.price)} <span style={{ color:C.violet }}>₾</span></span>
+                  </div>
+                  <p className="text-[12.5px] text-mute leading-snug mt-1.5 pr-10">{it.desc}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    {it.note && <span className="flex items-center gap-1"><Meta color={C.violet2}>{it.note}</Meta></span>}
+                    {it.pair && <Meta color={C.mute}>↳ {byId(it.pair).name.split(' —')[0]}-თან</Meta>}
+                    <span className="ml-auto w-7 h-7 grid place-items-center cut-sm group-active:scale-90 transition-transform" style={{ background:C.bone2, color:C.ink }}><Plus s={15} /></span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+            <div className="text-center mt-10"><Meta color="rgba(14,13,20,0.3)"> — გემრიელად —</Meta></div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <CartDock count={cartCount} total={cartTotal} onClick={onCart} />
+    </motion.div>
+  );
+}
+
+function CartDock({ count, total, onClick, label='სუფრის ნახვა' }) {
+  return (
+    <AnimatePresence>
+      {count > 0 && (
+        <motion.div initial={{ y:90, opacity:0 }} animate={{ y:0, opacity:1 }} exit={{ y:90, opacity:0 }} transition={SPRING}
+          className="absolute left-0 right-0 bottom-0 px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 z-30 pointer-events-none">
+          <motion.button key={count} initial={{ scale:0.97 }} animate={{ scale:1 }} transition={{ type:'spring', stiffness:520, damping:18 }} onClick={onClick}
+            className="pointer-events-auto w-full h-16 cut flex items-center justify-between pl-5 pr-4 py-3.5 active:scale-[0.985] transition-transform"
+            style={{ background:C.ink, boxShadow:'0 16px 36px -14px rgba(14,13,20,0.7)' }}>
+            <span className="flex items-center gap-3">
+              <span className="font-mono font-bold text-[13px] grid place-items-center w-8 h-8 cut-sm" style={{ background:C.violet, color:C.ink }}>{count}</span>
+              <span className="font-extrabold text-bone text-[15px]">{label}</span>
+            </span>
+            <span className="flex items-baseline gap-1"><AnimatedNumber value={total} className="font-bold text-[18px]" style={{ color:C.bone }} /><span className="text-[13px] font-bold" style={{ color:C.violet }}>₾</span></span>
+          </motion.button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ============================== ITEM SHEET ============================== */
+function ItemSheet({ item, onClose, onAdd, onAddPair }) {
+  const [qty, setQty] = useState(1);
+  const [sel, setSel] = useState(() => {
+    const s = {};
+    (item.options || []).forEach(o => {
+      if (o.type === 'single') s[o.id] = o.def || o.choices[0].id;
+      if (o.type === 'scale') s[o.id] = o.def || o.choices[1].id;
+      if (o.type === 'multi') s[o.id] = [];
+    });
+    return s;
+  });
+  const unit = unitPrice(item, sel);
+  const total = unit * qty;
+  const pair = item.pair ? byId(item.pair) : null;
+  const toggle = (oid, cid) => setSel(s => { const cur = s[oid] || []; return { ...s, [oid]: cur.includes(cid) ? cur.filter(x=>x!==cid) : [...cur, cid] }; });
+
+  return (
+    <motion.div className="absolute inset-0 z-40 flex items-end" initial="h" animate="s" exit="h">
+      <motion.div className="absolute inset-0" style={{ background:'rgba(14,13,20,0.5)' }} variants={{ h:{opacity:0}, s:{opacity:1} }} transition={{ duration:0.3 }} onClick={onClose} />
+      <motion.div variants={{ h:{ y:'100%' }, s:{ y:0 } }} transition={SPRING}
+        drag="y" dragConstraints={{ top:0, bottom:0 }} dragElastic={{ top:0, bottom:0.5 }} onDragEnd={(e,i)=>{ if (i.offset.y > 110) onClose(); }}
+        className="relative w-full max-h-[92%] flex flex-col cut-lg" style={{ background:C.bone }}>
+        <div className="flex items-center justify-between px-6 pt-5 pb-3 shrink-0">
+          <Seal size={26} fg={C.ink} rule={false} />
+          <button onClick={onClose} className="w-9 h-9 grid place-items-center cut-sm active:scale-90 transition" style={{ background:C.bone2, color:C.ink }}><Close s={16} /></button>
+        </div>
+
+        <div className="overflow-y-auto no-scrollbar px-6 pb-4">
+          {item.note && <Eyebrow color={C.violet2} className="mb-2">{item.note}</Eyebrow>}
+          <h3 className="font-black text-ink text-[26px] leading-[1.05]">{item.name}</h3>
+          <p className="text-[14px] text-mute leading-relaxed mt-3">{item.desc}</p>
+
+          {(item.options || []).map(o => (
+            <div key={o.id} className="mt-7">
+              <div className="flex items-center justify-between mb-3">
+                <Eyebrow color={C.ink}>{o.title}</Eyebrow>
+                <Meta color={o.required?C.violet2:C.mute}>{o.required ? 'სავალდებულო' : 'სურვილით'}</Meta>
+              </div>
+
+              {o.type === 'scale' ? (
+                <div className="flex gap-1.5">
+                  {o.choices.map(c => { const on = sel[o.id]===c.id; return (
+                    <button key={c.id} onClick={() => setSel(s=>({...s,[o.id]:c.id}))} className="flex-1 py-3 cut-sm text-[13px] font-bold transition-colors"
+                      style={{ background:on?C.ink:'transparent', color:on?C.bone:C.mute, border:`1px solid ${on?C.ink:'rgba(14,13,20,0.16)'}` }}>{c.label}</button> ); })}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {o.choices.map(c => { const on = o.type==='single' ? sel[o.id]===c.id : (sel[o.id]||[]).includes(c.id); return (
+                    <button key={c.id} onClick={() => o.type==='single' ? setSel(s=>({...s,[o.id]:c.id})) : toggle(o.id,c.id)}
+                      className="flex items-center justify-between px-4 py-3.5 cut-sm transition-colors" style={{ background:on?C.bone:'transparent', border:`1px solid ${on?C.violet:'rgba(14,13,20,0.14)'}` }}>
+                      <span className="flex items-center gap-3">
+                        <span className="w-5 h-5 grid place-items-center" style={{ background:on?C.violet:'transparent', border:`2px solid ${on?C.violet:'rgba(14,13,20,0.22)'}`, color:C.bone }}>{on && <Check s={12} />}</span>
+                        <span className="text-[14.5px] font-medium text-ink">{c.label}</span>
+                      </span>
+                      {c.price > 0 && <span className="font-mono text-[13px] text-mute">+{fmt(c.price)} ₾</span>}
+                    </button> ); })}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* pairing cross-sell — conversion at the moment of desire */}
+          {pair && (
+            <CutBox border={C.violet} fill="rgba(110,107,181,0.10)" wrapClass="mt-7" className="px-4 py-3.5 flex items-center gap-3">
+              <span><Spark s={18} /></span>
+              <div className="flex-1">
+                <Meta color={C.violet2}>მასპინძლის რჩევა</Meta>
+                <div className="text-[14px] font-bold text-ink leading-tight mt-0.5">{pair.name}</div>
+              </div>
+              <button onClick={() => onAddPair(pair)} className="px-3 h-9 cut-sm font-bold text-[13px] flex items-center gap-1.5 active:scale-95 transition" style={{ background:C.violet, color:C.ink }}>
+                <Plus s={14} /> {fmt(pair.price)} ₾
+              </button>
+            </CutBox>
+          )}
+
+          <div className="flex items-center justify-between mt-7"><Eyebrow color={C.ink}>რაოდენობა</Eyebrow><Stepper value={qty} setValue={setQty} /></div>
+        </div>
+
+        <div className="shrink-0 px-6 pt-3 pb-[max(20px,env(safe-area-inset-bottom))]" style={{ background:C.bone, borderTop:'1px solid rgba(14,13,20,0.12)' }}>
+          <button onClick={() => onAdd(item, sel, qty, unit)} className="w-full h-16 cut flex items-center justify-between pl-7 pr-3 active:scale-[0.985] transition-transform" style={{ background:C.ink, color:C.bone }}>
+            <span className="font-extrabold text-[16px]">სუფრაზე დამატება</span>
+            <span className="flex items-center gap-3">
+              <span className="flex items-baseline gap-1"><AnimatedNumber value={total} className="font-bold text-[18px]" style={{ color:C.bone }} /><span className="text-[13px] font-bold" style={{ color:C.violet }}>₾</span></span>
+              <span className="w-11 h-11 grid place-items-center cut-sm" style={{ background:C.violet, color:C.ink }}><Plus s={20} /></span>
+            </span>
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ============================== CART ============================== */
+function Cart({ cart, setCart, onBack, onCheckout, addSuggestion, round }) {
+  const subtotal = cart.reduce((s,l)=>s+l.unit*l.qty, 0);
+  const setQty = (uid, q) => setCart(c => q<=0 ? c.filter(l=>l.uid!==uid) : c.map(l=>l.uid===uid?{...l,qty:q}:l));
+  const inCart = new Set(cart.map(l=>l.item.id));
+  const suggestion = MENU.find(m => (m.cat.includes('dessert')||m.cat.includes('drink')) && !inCart.has(m.id));
+
+  return (
+    <motion.div key="cart" initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:20 }} transition={{ duration:0.32, ease:EASE }}
+      className="h-full w-full flex flex-col" style={{ background:C.bone }}>
+      <TopBar title="თქვენი სუფრა" meta={`მაგიდა ${VENUE.table} · რაუნდი ${round}`} onBack={onBack} />
+      <div className="flex-1 overflow-y-auto no-scrollbar px-6 pt-5 pb-44">
+        {cart.length === 0 ? <Empty onBack={onBack} /> : (
+          <>
+            <div className="flex flex-col">
+              <AnimatePresence initial={false}>
+                {cart.map((l, i) => (
+                  <motion.div key={l.uid} layout initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, x:-30, height:0 }} transition={{ duration:0.28, ease:EASE }}
+                    className="flex items-center gap-3 py-4" style={{ borderTop:i===0?'none':'1px solid rgba(14,13,20,0.12)' }}>
+                    <span className="font-mono font-bold text-[13px] w-7 h-7 grid place-items-center cut-sm shrink-0" style={{ background:C.bone2, color:C.ink }}>{l.qty}</span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-ink text-[15px] leading-snug">{l.item.name}</h4>
+                      {l.label && <p className="text-[11.5px] text-mute mt-0.5 leading-snug">{l.label}</p>}
+                      <span className="font-mono font-bold text-ink text-[13.5px]">{fmt(l.unit*l.qty)} <span style={{ color:C.violet }}>₾</span></span>
+                    </div>
+                    <Stepper value={l.qty} setValue={(q)=>setQty(l.uid,q)} min={0} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {suggestion && (
+              <CutBox border={C.ink} fill={C.ink} wrapClass="mt-6" className="px-5 py-4 flex items-center gap-4">
+                <div className="flex-1">
+                  <Eyebrow color={C.violet}>დაასრულეთ სუფრა</Eyebrow>
+                  <div className="text-[15px] font-bold text-bone leading-tight mt-1">{suggestion.name}</div>
+                  <span className="font-mono text-[12px]" style={{ color:'rgba(244,240,231,0.6)' }}>{fmt(suggestion.price)} ₾</span>
+                </div>
+                <button onClick={() => addSuggestion(suggestion)} className="w-11 h-11 grid place-items-center cut-sm active:scale-90 transition" style={{ background:C.violet, color:C.ink }}><Plus s={20} /></button>
+              </CutBox>
+            )}
+
+            <div className="flex items-center gap-2 mt-6 px-1">
+              <button onClick={onBack} className="flex items-center gap-1.5"><Meta color={C.violet2}>+ კიდევ დაამატე მენიუდან</Meta></button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {cart.length > 0 && (
+        <div className="absolute left-0 right-0 bottom-0 px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 z-30">
+          <button onClick={onCheckout} className="w-full h-16 cut flex items-center justify-between pl-7 pr-3 active:scale-[0.985] transition-transform" style={{ background:C.ink, color:C.bone, boxShadow:'0 16px 36px -14px rgba(14,13,20,0.7)' }}>
+            <span className="flex flex-col leading-tight"><Meta color="rgba(244,240,231,0.5)">ჯამი</Meta><span className="flex items-baseline gap-1 mt-0.5"><AnimatedNumber value={subtotal} className="font-bold text-[20px]" style={{ color:C.bone }} /><span className="text-[13px] font-bold" style={{ color:C.violet }}>₾</span></span></span>
+            <span className="flex items-center gap-3"><span className="font-extrabold text-[16px]">გადახდა</span><span className="w-11 h-11 grid place-items-center cut-sm" style={{ background:C.violet, color:C.ink }}><Arrow s={20} /></span></span>
+          </button>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+function Empty({ onBack }) {
+  return (
+    <div className="h-full flex flex-col items-center justify-center text-center pt-16">
+      <div style={{ opacity:0.35 }}><Seal size={64} fg={C.ink} rule={false} /></div>
+      <h3 className="font-extrabold text-ink text-[19px] mt-6">სუფრა ჯერ ცარიელია</h3>
+      <p className="text-[13px] text-mute mt-2 max-w-[15rem]">აირჩიეთ პირველი კერძი — და სუფრა გაიშლება.</p>
+      <button onClick={onBack} className="mt-6 h-12 px-7 cut font-bold text-[14px] active:scale-95 transition" style={{ background:C.ink, color:C.bone }}>მენიუზე დაბრუნება</button>
+    </div>
+  );
+}
+
+function TopBar({ title, meta, onBack }) {
+  return (
+    <div className="px-6 pt-[max(20px,env(safe-area-inset-top))] pb-3 sticky top-0 z-20" style={{ background:C.bone }}>
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="w-10 h-10 grid place-items-center cut-sm active:scale-90 transition shrink-0" style={{ background:C.bone2, color:C.ink }}><Arrow s={18} left /></button>
+        <div className="min-w-0"><Meta>{meta}</Meta><h2 className="font-black text-ink text-[19px] leading-tight truncate">{title}</h2></div>
+      </div>
+      <div className="mt-3"><Rule color="rgba(14,13,20,0.85)" /></div>
+    </div>
+  );
+}
+
+/* ============================== CHECKOUT ============================== */
+const TIPS = [ {id:'t5',label:'5%',pct:0.05}, {id:'t10',label:'10%',pct:0.10}, {id:'t15',label:'15%',pct:0.15}, {id:'t0',label:'არა',pct:0} ];
+const METHODS = [ {id:'apple',label:'Apple Pay',hint:'ერთი შეხებით'}, {id:'google',label:'Google Pay',hint:'ერთი შეხებით'}, {id:'card',label:'ბარათი',hint:'•••• 4291'} ];
+
+function Checkout({ cart, onBack, onPay }) {
+  const subtotal = cart.reduce((s,l)=>s+l.unit*l.qty, 0);
+  const [tip, setTip] = useState(null);
+  const [method, setMethod] = useState('apple');
+  const tipPct = tip ? TIPS.find(t=>t.id===tip).pct : 0;
+  const tipAmt = subtotal * tipPct;
+  const total = subtotal + tipAmt;
+
+  return (
+    <motion.div key="checkout" initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0, x:20 }} transition={{ duration:0.32, ease:EASE }}
+      className="h-full w-full flex flex-col" style={{ background:C.bone }}>
+      <TopBar title="ანგარიში" meta={`${cart.length} პოზიცია · მაგიდა ${VENUE.table}`} onBack={onBack} />
+      <div className="flex-1 overflow-y-auto no-scrollbar px-6 pt-6 pb-56">
+        {/* oversized engraved total */}
+        <Eyebrow>გადასახდელი</Eyebrow>
+        <div className="flex items-baseline gap-2 mt-1">
+          <AnimatedNumber value={total} className="font-bold tracking-tighter leading-none" style={{ color:C.ink, fontSize:'clamp(56px,18vw,78px)' }} />
+          <span className="font-bold leading-none" style={{ color:C.violet, fontSize:34 }}>₾</span>
+        </div>
+
+        {/* tip — never pre-selected */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-3">
+            <Eyebrow color={C.ink}>მადლობა მასპინძელს</Eyebrow>
+            <span className="flex items-baseline gap-1"><AnimatedNumber value={tipAmt} className="font-bold text-[14px]" style={{ color:C.violet2 }} /><Meta color={C.mute}>₾</Meta></span>
+          </div>
+          <div className="flex gap-1.5">
+            {TIPS.map(t => { const on = tip===t.id; return (
+              <button key={t.id} onClick={()=>setTip(on?null:t.id)} className="flex-1 py-3 cut-sm text-[13px] font-bold transition-colors" style={{ background:on?C.violet:'transparent', color:on?C.ink:C.mute, border:`1px solid ${on?C.violet:'rgba(14,13,20,0.16)'}` }}>{t.label}</button> ); })}
+          </div>
+          <div className="mt-2"><Meta color={C.mute}>სუფრის ტრადიციით — თქვენი ნებით</Meta></div>
+        </div>
+
+        {/* method — one-tap pay primary */}
+        <div className="mt-8">
+          <Eyebrow color={C.ink} className="mb-3">გადახდის მეთოდი</Eyebrow>
+          <div className="flex flex-col gap-2">
+            {METHODS.map(m => { const on = m.id===method; return (
+              <button key={m.id} onClick={()=>setMethod(m.id)} className="flex items-center justify-between px-4 py-4 cut-sm transition-colors" style={{ background:on?C.ink:'transparent', border:`1px solid ${on?C.ink:'rgba(14,13,20,0.14)'}` }}>
+                <span className="flex items-center gap-3">
+                  <span className="w-9 h-9 grid place-items-center cut-sm font-mono font-bold text-[13px]" style={{ background:on?C.violet:C.bone2, color:C.ink }}>
+                    {m.id==='card' ? '₾' : m.id==='apple' ? 'P' : 'G'}
+                  </span>
+                  <span className="text-left"><span className="block text-[15px] font-bold" style={{ color:on?C.bone:C.ink }}>{m.label}</span><Meta color={on?'rgba(244,240,231,0.55)':C.mute}>{m.hint}</Meta></span>
+                </span>
+                <span className="w-5 h-5 grid place-items-center" style={{ background:on?C.violet:'transparent', border:`2px solid ${on?C.violet:'rgba(14,13,20,0.22)'}`, color:C.ink }}>{on && <Check s={12} />}</span>
+              </button> ); })}
+          </div>
+        </div>
+
+        {/* ledger */}
+        <CutBox border={C.ink} fill={C.bone} wrapClass="mt-8" className="px-5 py-4">
+          <LedgerRow label="კერძების ჯამი" value={subtotal} />
+          <LedgerRow label={`მადლობა${tip?` · ${Math.round(tipPct*100)}%`:''}`} value={tipAmt} />
+          <div className="my-3"><Rule color="rgba(14,13,20,0.85)" /></div>
+          <div className="flex items-center justify-between"><span className="font-extrabold text-ink text-[16px]">სულ</span><span className="flex items-baseline gap-1"><AnimatedNumber value={total} className="font-bold text-[19px]" style={{ color:C.ink }} /><span className="text-[13px] font-bold" style={{ color:C.violet }}>₾</span></span></div>
+        </CutBox>
+      </div>
+
+      <div className="absolute left-0 right-0 bottom-0 px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 z-30" style={{ background:'linear-gradient(to top, '+C.bone+' 70%, transparent)' }}>
+        <button onClick={()=>onPay(total, method)} className="w-full h-16 cut flex items-center justify-between pl-7 pr-3 active:scale-[0.985] transition-transform" style={{ background:C.violet, color:C.ink, boxShadow:'0 16px 36px -14px rgba(79,76,135,0.6)' }}>
+          <span className="font-extrabold text-[16px]">{METHODS.find(m=>m.id===method).label}-ით გადახდა</span>
+          <span className="flex items-center gap-3"><span className="flex items-baseline gap-1"><AnimatedNumber value={total} className="font-bold text-[18px]" style={{ color:C.ink }} /><span className="text-[13px] font-bold">₾</span></span><span className="w-11 h-11 grid place-items-center cut-sm" style={{ background:C.ink, color:C.bone }}><Arrow s={20} /></span></span>
+        </button>
+        <div className="flex items-center justify-center mt-3"><Meta color={C.mute}>დაცული 256-ბიტიანი დაშიფვრით</Meta></div>
+      </div>
+    </motion.div>
+  );
+}
+function LedgerRow({ label, value }) {
+  return (
+    <div className="flex items-baseline py-1 gap-2">
+      <span className="text-[13.5px] text-mute">{label}</span>
+      <span className="flex-1 mx-1 mb-1" style={{ borderBottom:'1px dotted rgba(14,13,20,0.25)' }} />
+      <span className="flex items-baseline gap-1"><AnimatedNumber value={value} className="font-semibold text-ink text-[14px]" /><Meta color={C.mute}>₾</Meta></span>
+    </div>
+  );
+}
+
+/* ============================== CONFIRM (borjgali) ============================== */
+function Confirm({ total, onDone }) {
+  useEffect(() => { const t = setTimeout(onDone, 2400); return () => clearTimeout(t); }, []);
+  return (
+    <motion.div key="confirm" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} transition={{ duration:0.4 }}
+      className="h-full w-full grid place-items-center relative overflow-hidden" style={{ background:C.ink }}>
+      <div className="absolute inset-5 pointer-events-none" style={{ border:'1px solid rgba(244,240,231,0.10)' }} />
+      <div className="flex flex-col items-center">
+        <SealStamp size={132} />
+        <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.9, duration:0.5 }} className="mt-10 text-center">
+          <Meta color={C.violet}>გადახდა დადასტურდა</Meta>
+          <div className="font-black text-bone text-[24px] mt-2">გმადლობთ</div>
+          <div className="font-mono text-[13px] mt-1" style={{ color:'rgba(244,240,231,0.55)' }}>{fmt(total)} ₾</div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ============================== MEMENTO (keepsake) ============================== */
+const STATUS = ['მიღებულია', 'ცეცხლზეა', 'მზად არის'];
+function Memento({ round, onBack, onFinish }) {
+  const r = round;
+  const [stage, setStage] = useState(0);
+  const [sent, setSent] = useState(false);
+  useEffect(() => { const i = setInterval(() => setStage(s => Math.min(2, s+1)), 2600); return () => clearInterval(i); }, []);
+  const date = new Date().toLocaleDateString('ka-GE', { day:'2-digit', month:'long' });
+  const time = new Date().toLocaleTimeString('ka-GE', { hour:'2-digit', minute:'2-digit' });
+
+  return (
+    <motion.div key="memento" initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5, ease:EASE }}
+      className="h-full w-full flex flex-col" style={{ background:C.bone }}>
+      <div className="flex-1 overflow-y-auto no-scrollbar px-6 pt-[max(30px,env(safe-area-inset-top))] pb-40">
+        <Eyebrow>სუფრის ბარათი</Eyebrow>
+        <h2 className="font-black text-ink text-[26px] leading-tight mt-1">რაუნდი {r.no} გადახდილია</h2>
+
+        {/* live status — orthogonal, not a spinner */}
+        <div className="flex items-center gap-2 mt-5">
+          {STATUS.map((s, i) => (
+            <div key={i} className="flex-1">
+              <div className="h-1.5" style={{ background:i<=stage?C.violet:'rgba(14,13,20,0.12)' }} />
+              <div className="mt-1.5"><Meta color={i<=stage?C.ink:C.mute}>{s}</Meta></div>
+            </div>
+          ))}
+        </div>
+
+        {/* keepsake card */}
+        <motion.div initial={{ y:20, opacity:0 }} animate={{ y:0, opacity:1 }} transition={{ delay:0.25, duration:0.5, ease:EASE }} className="mt-7">
+          <CutBox border={C.ink} fill={C.ink} size="lg" className="p-6" style={{ color:C.bone }}>
+            <div className="flex items-start justify-between">
+              <div><Meta color={C.violet}>{VENUE.name} · {VENUE.area}</Meta><div className="font-mono text-[11px] mt-1" style={{ color:'rgba(244,240,231,0.5)' }}>{date} · {time} · მაგიდა {VENUE.table}</div></div>
+              <Seal size={34} fg={C.violet} rule={false} />
+            </div>
+            <div className="my-4" style={{ height:1, background:'rgba(244,240,231,0.14)' }} />
+            {r.items.map(l => (
+              <div key={l.uid} className="flex items-baseline gap-2 py-1.5">
+                <span className="font-mono font-bold text-[12px]" style={{ color:C.violet }}>{l.qty}×</span>
+                <span className="text-[13.5px] flex-1" style={{ color:'rgba(244,240,231,0.92)' }}>{l.item.name}</span>
+                <span className="flex-1 mx-1 mb-1" style={{ borderBottom:'1px dotted rgba(244,240,231,0.25)' }} />
+                <span className="font-mono text-[13px]" style={{ color:C.bone }}>{fmt(l.unit*l.qty)} ₾</span>
+              </div>
+            ))}
+            <div className="my-4" style={{ height:1, background:'rgba(244,240,231,0.14)' }} />
+            <div className="flex items-baseline justify-between">
+              <Meta color="rgba(244,240,231,0.6)">გადახდილია · {r.method}</Meta>
+              <span className="font-mono font-bold text-[22px]" style={{ color:C.bone }}>{fmt(r.total)} <span style={{ color:C.violet }}>₾</span></span>
+            </div>
+            <div className="mt-4 text-center"><Meta color="rgba(244,240,231,0.4)">№ {r.code}</Meta></div>
+          </CutBox>
+        </motion.div>
+
+        <button onClick={()=>setSent(true)} disabled={sent} className="w-full mt-4 py-4 cut-sm font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition" style={{ background:'rgba(110,107,181,0.12)', color:C.violet2 }}>
+          {sent ? <><Check s={16} /> ბარათი გაიგზავნა</> : <>ბარათის გაგზავნა SMS-ით</>}
+        </button>
+      </div>
+
+      <div className="absolute left-0 right-0 bottom-0 px-5 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 z-30 flex gap-2.5" style={{ background:'linear-gradient(to top, '+C.bone+' 70%, transparent)' }}>
+        <button onClick={onBack} className="flex-1 h-16 py-4 cut flex items-center justify-center gap-2.5 active:scale-[0.985] transition-transform" style={{ background:C.ink, color:C.bone }}>
+          <span className="font-extrabold text-[15px]">ახალი რაუნდი</span><span className="w-8 h-8 grid place-items-center cut-sm" style={{ background:C.violet, color:C.ink }}><Plus s={17} /></span>
+        </button>
+        <button onClick={onFinish} className="px-6 h-16 py-4 cut font-bold text-[14px] active:scale-95 transition" style={{ background:'transparent', color:C.ink, border:`1px solid ${C.ink}` }}>დასრულება</button>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ============================== ROOT ============================== */
+function App() {
+  const [screen, setScreen] = useState('arrival');
+  const [active, setActive] = useState('pop');
+  const [sheetItem, setSheetItem] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [rounds, setRounds] = useState([]);
+  const [paid, setPaid] = useState({ total:0, method:'apple' });
+
+  const cartCount = cart.reduce((s,l)=>s+l.qty, 0);
+  const cartTotal = cart.reduce((s,l)=>s+l.unit*l.qty, 0);
+  const roundNo = rounds.length + 1;
+
+  const addLine = (item, sel, qty, unit) => {
+    const label = selLabel(item, sel);
+    const key = item.id + '|' + label;
+    setCart(c => { const ex = c.find(l => l.key === key); if (ex) return c.map(l => l.key===key ? { ...l, qty:l.qty+qty } : l);
+      return [...c, { uid:Math.random().toString(36).slice(2), key, item, sel, label, unit, qty }]; });
+  };
+  const quickAdd = (item) => addLine(item, {}, 1, item.price);
+  const onAdd = (item, sel, qty, unit) => { addLine(item, sel, qty, unit); setSheetItem(null); };
+
+  const startPay = (total, method) => { setPaid({ total, method }); setScreen('confirm'); };
+  const finishPay = () => {
+    const code = 'AV-' + Math.floor(2000 + Math.random()*8000);
+    const methodLabel = METHODS.find(m=>m.id===paid.method).label;
+    setRounds(rs => [...rs, { no:rs.length+1, items:cart, total:paid.total, method:methodLabel, code }]);
+    setCart([]); setScreen('memento');
+  };
+  const newRound = () => { setActive('pop'); setScreen('menu'); };
+  const finishAll = () => { setRounds([]); setCart([]); setActive('pop'); setScreen('arrival'); };
+
+  const latestRound = rounds[rounds.length - 1] || { no:1, items:[], total:0, method:'', code:'' };
+
+  return (
+    <div className="w-full min-h-[100dvh] grid place-items-center" style={{ background:'#0A0910' }}>
+      <div className="relative w-full max-w-[430px] h-[100dvh] sm:h-[92dvh] sm:max-h-[920px] sm:rounded-[42px] overflow-hidden sm:border-[10px]"
+        style={{ background:C.bone, borderColor:'#06050A', boxShadow:'0 40px 120px -30px rgba(0,0,0,0.85)' }}>
+        <AnimatePresence mode="wait">
+          {screen === 'arrival'  && <Arrival key="a" onEnter={()=>setScreen('menu')} round={roundNo} />}
+          {screen === 'menu'     && <Menu key="m" active={active} setActive={setActive} onOpen={setSheetItem} cartCount={cartCount} cartTotal={cartTotal} onCart={()=>setScreen('cart')} round={roundNo} />}
+          {screen === 'cart'     && <Cart key="c" cart={cart} setCart={setCart} onBack={()=>setScreen('menu')} onCheckout={()=>setScreen('checkout')} addSuggestion={quickAdd} round={roundNo} />}
+          {screen === 'checkout' && <Checkout key="co" cart={cart} onBack={()=>setScreen('cart')} onPay={startPay} />}
+          {screen === 'confirm'  && <Confirm key="cf" total={paid.total} onDone={finishPay} />}
+          {screen === 'memento'  && <Memento key="me" round={latestRound} onBack={newRound} onFinish={finishAll} />}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {sheetItem && <ItemSheet item={sheetItem} onClose={()=>setSheetItem(null)} onAdd={onAdd} onAddPair={quickAdd} />}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+const boot = document.getElementById('boot'); if (boot) boot.remove();
+createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
