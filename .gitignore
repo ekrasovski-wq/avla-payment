@@ -6,8 +6,3 @@ dist
 .env.*.local
 *.log
 .DS_Store
-*.pdf
-*.png
-*.jpg
-*.jpeg
-.git
