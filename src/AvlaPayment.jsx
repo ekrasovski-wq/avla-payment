@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { motion, AnimatePresence, animate } from "framer-motion";
+import { motion, AnimatePresence, animate, useMotionValue } from "framer-motion";
 
 /* Avla brand icons */
 function Svg({ size = 24, color = "currentColor", strokeWidth = 2, fill = "none", children, ...rest }) {
@@ -17,6 +17,7 @@ const Star = (p) => (<Svg {...p}><path d="M12 3 L14.6 9.1 L21 9.6 L16.1 13.8 L17
 const Close = (p) => (<Svg {...p}><path d="M6 6 L18 18" /><path d="M18 6 L6 18" /></Svg>);
 const FaceId = (p) => (<Svg {...p}><path d="M4 8 V4 H8" /><path d="M16 4 H20 V8" /><path d="M20 16 V20 H16" /><path d="M8 20 H4 V16" /><path d="M8.5 9.5 V11.5" /><path d="M15.5 9.5 V11.5" /><path d="M12 9.5 V13.5 H11" /><path d="M8.5 16 Q12 18.5 15.5 16" /></Svg>);
 const CardGlyph = (p) => (<Svg {...p}><path d="M3.5 5.5 H20.5 V18.5 H3.5 Z" /><path d="M3.5 9.5 H20.5" /><path d="M7 14.5 H12" /></Svg>);
+const ChevronRight = (p) => (<Svg {...p}><path d="M9 6 L15 12 L9 18" /></Svg>);
 const AppleLogo = ({ size = 18, color = "currentColor", style = {} }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true" style={{ display: "block", ...style }}>
     <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702" />
@@ -160,6 +161,124 @@ function Shell({ children }) {
         {children}
       </div>
     </div>
+  );
+}
+
+function SlideButton({ onComplete, disabled, payLabel, amount }) {
+  const x = useMotionValue(0);
+  const [completed, setCompleted] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle, loading, success
+
+  const handleDragEnd = (event, info) => {
+    if (disabled || completed) return;
+    const progress = info.offset.x / 100;
+    if (progress > 0.9) {
+      setCompleted(true);
+      setStatus("loading");
+      setTimeout(() => {
+        setStatus("success");
+        setTimeout(() => {
+          onComplete();
+        }, 600);
+      }, 800);
+    } else {
+      animate(x, 0, { type: "spring", stiffness: 400, damping: 40 });
+    }
+  };
+
+  return (
+    <motion.div
+      style={{
+        width: "100%",
+        height: BTN,
+        borderRadius: R.lg,
+        background: completed ? c.success : c.primary,
+        position: "relative",
+        cursor: disabled || completed ? "default" : "grab",
+        overflow: "hidden",
+      }}
+      animate={{
+        opacity: disabled ? 0.55 : 1,
+        boxShadow: completed ? "0 8px 20px rgba(31,168,31,0.3)" : "0 8px 22px -8px rgba(26,26,26,0.4)",
+      }}
+      transition={{ duration: 0.3 }}>
+
+      {!completed && (
+        <>
+          <div style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: SP.sm,
+            color: "#fff",
+            fontWeight: 600,
+            fontSize: 15,
+          }}>
+            <span>{payLabel}</span>
+            <Amount value={amount} color="#fff" style={{ marginLeft: "auto", fontSize: 15 }} />
+          </div>
+
+          <motion.div
+            drag="x"
+            dragConstraints={{ left: 0, right: 100 }}
+            dragElastic={0.05}
+            dragMomentum={false}
+            onDragEnd={handleDragEnd}
+            style={{ x }}
+            whileTap={!disabled && !completed ? { scale: 1.05 } : {}}
+            className="absolute left-0 top-0 bottom-0 w-20 flex items-center justify-center"
+          >
+            <motion.div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: R.md,
+                background: "rgba(255,255,255,0.2)",
+                display: "grid",
+                placeItems: "center",
+                backdropFilter: "blur(8px)",
+              }}>
+              <ChevronRight size={20} color="#fff" strokeWidth={2.5} />
+            </motion.div>
+          </motion.div>
+        </>
+      )}
+
+      {completed && (
+        <motion.div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            width: "100%",
+            height: "100%",
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}>
+          <AnimatePresence mode="wait">
+            {status === "loading" && (
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  style={{ width: 24, height: 24, borderRadius: 12, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff" }} />
+              </motion.div>
+            )}
+            {status === "success" && (
+              <motion.div key="success" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: "spring", stiffness: 400, damping: 30 }}>
+                <Check size={28} color="#fff" strokeWidth={3} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
+    </motion.div>
   );
 }
 
@@ -327,22 +446,24 @@ function ActiveBill({ bill, onPay }) {
         </div>
       </div>
 
-      {/* STICKY BUTTON */}
+      {/* STICKY SLIDE-TO-PAY BUTTON */}
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, background: "rgba(245,244,250,0.90)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
         <div style={{ padding: `${SP.md}px ${PAD}px` }}>
-          <motion.button whileTap={blocked ? {} : { scale: 0.97 }} onClick={blocked ? undefined : () => onPay({ total: payTotal, share: shareSub, tip: tipAmt, method, mode, guests, picked: [...picked], receipt: receipt.trim() })}
-            style={{
-              width: "100%", height: BTN, borderRadius: R.lg, gap: SP.md, padding: `0 ${SP.xl}px`, fontSize: 15, fontWeight: 600, color: "#fff", border: "none", cursor: blocked ? "not-allowed" : "pointer",
-              background: blocked ? "rgba(115,78,249,0.40)" : method === "card" ? c.primary : c.text, boxShadow: blocked ? "none" : "0 8px 22px -8px rgba(26,26,26,0.4)",
-              display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.25s, opacity 0.25s", opacity: blocked ? 0.6 : 1
+          {blocked ? (
+            <div style={{
+              width: "100%", height: BTN, borderRadius: R.lg, background: "rgba(115,78,249,0.40)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 600, color: c.text
             }}>
-            {blocked ? "აირჩიეთ კერძები" : (<>
-              {method === "apple"
-                ? <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><AppleLogo size={18} color="#fff" style={{ marginTop: -2 }} /><span>Pay</span></span>
-                : <span>{payLabel}</span>}
-              <Amount value={payTotal} color="#fff" style={{ marginLeft: "auto" }} />
-            </>)}
-          </motion.button>
+              აირჩიეთ კერძები
+            </div>
+          ) : (
+            <SlideButton
+              disabled={blocked}
+              onComplete={() => onPay({ total: payTotal, share: shareSub, tip: tipAmt, method, mode, guests, picked: [...picked], receipt: receipt.trim() })}
+              payLabel={payLabel}
+              amount={payTotal}
+            />
+          )}
         </div>
       </div>
     </motion.div>
@@ -369,7 +490,6 @@ function Confetti() {
 }
 
 function Receipt({ result }) {
-  const [open, setOpen] = useState(false);
   const methodLabel = METHODS.find((m) => m.id === result.method).label + (result.cardLast4 ? ` •••• ${result.cardLast4}` : "");
   const note = result.mode === "equal" ? `გაყოფილია ${result.guests} ნაწილად` : result.mode === "item" ? "გადახდილია არჩეული კერძები" : null;
   const lines = result.mode === "item" ? OPEN_BILL.filter((l) => result.picked.includes(l.id)) : OPEN_BILL;
@@ -385,104 +505,103 @@ function Receipt({ result }) {
   ];
 
   return (
-    <div style={{ borderRadius: R.lg, background: c.bg, boxShadow: CARD, overflow: "hidden" }}>
-      <button onClick={() => setOpen((v) => !v)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: `0 ${SP.lg}px`, height: 56, background: "none", border: "none", cursor: "pointer" }}>
-        <span style={{ fontSize: 14, fontWeight: 500, color: c.text }}>ქვითარი № {result.code}</span>
-        <ChevronDown size={18} color={c.text3} style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
-      </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} style={{ overflow: "visible" }}>
-            <motion.div style={{ position: "relative", padding: `0 ${SP.lg}px ${SP.lg}px`, background: "#F9F9F9", perspective: 1200 }}>
-              {/* Receipt paper effect */}
-              <motion.div
-                initial={{ rotateX: 15, y: 20 }}
-                animate={{ rotateX: 0, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                style={{
-                  transformStyle: "preserve-3d",
-                  background: "#FAFAFA",
-                  borderRadius: 2,
-                  padding: `${SP.md}px ${SP.md}px ${SP.lg}px`,
-                  boxShadow: "0 10px 40px rgba(26,26,26,0.18), 0 2px 8px rgba(26,26,26,0.12)",
-                  position: "relative",
-                  marginTop: 8
-                }}>
+    <div style={{ marginTop: SP.xl }}>
+      {/* Receipt paper - auto-playing 3D printing effect */}
+      <motion.div
+        initial={{ rotateX: 15, y: 40, opacity: 0, scale: 0.95 }}
+        animate={{ rotateX: 0, y: 0, opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        style={{
+          transformStyle: "preserve-3d",
+          transformOrigin: "top center",
+          background: "#F5F5F0",
+          border: "1px solid #E5E5DC",
+          borderRadius: 3,
+          padding: `${SP.md}px ${SP.lg}px`,
+          boxShadow: "0 20px 50px rgba(26,26,26,0.28), 0 4px 12px rgba(26,26,26,0.12)",
+          position: "relative",
+          maxWidth: 320,
+          margin: "0 auto"
+        }}>
 
-                {/* Printer effect top */}
-                <div style={{ position: "absolute", top: -6, left: 0, right: 0, height: 6, background: "linear-gradient(to bottom, rgba(0,0,0,0.06), transparent)", borderRadius: "2px 2px 0 0" }} />
+        {/* Thermal printer feed marks (top) */}
+        <div style={{ position: "absolute", top: -10, left: 0, right: 0, height: 5, background: "repeating-linear-gradient(90deg, #bbb 0, #bbb 6px, transparent 6px, transparent 10px)" }} />
 
-                {/* Receipt content - line by line animation */}
-                {receiptItems.map((item, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.08, duration: 0.35, ease: "easeOut" }}
-                    style={{ overflow: "hidden" }}>
+        {/* Receipt content - line by line printing animation */}
+        {receiptItems.map((item, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 + idx * 0.08, duration: 0.4, ease: "easeOut" }}
+            style={{ overflow: "hidden" }}>
 
-                    {item.type === "header" && (
-                      <div style={{ textAlign: "center", paddingBottom: SP.sm, borderBottom: `1px dashed ${c.line}`, marginBottom: SP.sm }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: c.text, ...num }}>{item.label}</div>
-                        <div style={{ fontSize: 11, color: c.text2, marginTop: 2 }}>{item.subLabel}</div>
-                        <div style={{ fontSize: 10, color: c.text3, marginTop: 4 }}>---</div>
-                      </div>
-                    )}
+            {item.type === "header" && (
+              <div style={{ textAlign: "center", paddingBottom: SP.sm, marginBottom: SP.sm, borderBottom: "1px dashed #999" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: c.text, letterSpacing: 0.5, ...num }}>{item.label.toUpperCase()}</div>
+                <div style={{ fontSize: 11, color: "#666", marginTop: 3, ...num }}>TABLE {item.subLabel.split(" ")[1]}</div>
+              </div>
+            )}
 
-                    {item.type === "line" && (
-                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", padding: `${SP.xs}px 0`, fontSize: 12, fontFamily: SANS, letterSpacing: 0.3 }}>
-                        <span style={{ color: c.text, flex: 1 }}>
-                          <span style={{ ...num, color: c.text2, marginRight: 4 }}>{item.qty}×</span>
-                          {item.name}
-                        </span>
-                        <span style={{ ...num, color: c.text, marginLeft: SP.sm, whiteSpace: "nowrap", fontWeight: 500 }}>{fmt(item.total)} ₾</span>
-                      </div>
-                    )}
+            {item.type === "line" && (
+              <div style={{ display: "flex", justifyContent: "space-between", padding: `4px 0`, fontSize: 12, color: c.text, fontFamily: "Courier New, monospace", letterSpacing: 0.2 }}>
+                <span style={{ flex: 1 }}>
+                  <span style={{ color: "#888", marginRight: 6 }}>{item.qty}×</span>
+                  {item.name}
+                </span>
+                <span style={{ marginLeft: 12, whiteSpace: "nowrap", fontWeight: 600 }}>{fmt(item.total)} ₾</span>
+              </div>
+            )}
 
-                    {item.type === "divider" && (
-                      <div style={{ borderTop: `1px dashed ${c.line}`, margin: `${SP.sm}px 0` }} />
-                    )}
+            {item.type === "divider" && (
+              <div style={{ borderTop: "1px dashed #999", margin: `${SP.sm}px 0` }} />
+            )}
 
-                    {item.type === "row" && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `${SP.xs}px 0`, fontSize: 12 }}>
-                        <span style={{ color: c.text2 }}>{item.label}</span>
-                        <span style={{ ...num, color: item.value > 0 ? c.text : c.text2, fontWeight: 500 }}>{fmt(item.value)} ₾</span>
-                      </div>
-                    )}
+            {item.type === "row" && (
+              <div style={{ display: "flex", justifyContent: "space-between", padding: `3px 0`, fontSize: 11, color: "#666", fontFamily: "Courier New, monospace" }}>
+                <span>{item.label}</span>
+                <span style={{ marginLeft: 12, whiteSpace: "nowrap" }}>{fmt(item.value)} ₾</span>
+              </div>
+            )}
 
-                    {item.type === "total" && (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `${SP.md}px 0 0`, paddingTop: SP.sm, borderTop: `2px solid ${c.text}`, fontSize: 13, fontWeight: 700 }}>
-                        <span style={{ color: c.text, ...num }}>გადახდილია</span>
-                        <span style={{ ...num, color: c.primary, fontSize: 14 }}>{fmt(item.value)} ₾</span>
-                      </div>
-                    )}
+            {item.type === "total" && (
+              <div style={{ display: "flex", justifyContent: "space-between", padding: `${SP.sm}px 0 0`, borderTop: "2px solid #333", fontSize: 12, fontWeight: 700, color: c.text, fontFamily: "Courier New, monospace" }}>
+                <span>PAID {methodLabel}</span>
+                <span style={{ marginLeft: 12, whiteSpace: "nowrap" }}>{fmt(item.value)} ₾</span>
+              </div>
+            )}
 
-                    {item.type === "note" && (
-                      <div style={{ fontSize: 11, color: c.text2, marginTop: SP.sm, fontStyle: "italic", textAlign: "center" }}>({item.text})</div>
-                    )}
-                  </motion.div>
-                ))}
-
-                {/* Receipt bottom curl effect */}
-                <motion.div
-                  initial={{ scaleY: 0.8, opacity: 0 }}
-                  animate={{ scaleY: 1, opacity: 1 }}
-                  transition={{ delay: receiptItems.length * 0.08 + 0.2, duration: 0.4 }}
-                  style={{
-                    position: "absolute",
-                    bottom: -12,
-                    left: 0,
-                    right: 0,
-                    height: 12,
-                    background: "linear-gradient(to bottom, #FAFAFA, #F5F5F5)",
-                    clipPath: "polygon(0 0, 100% 0, 95% 100%, 5% 100%)",
-                    boxShadow: "0 4px 12px rgba(26,26,26,0.12)"
-                  }} />
-              </motion.div>
-            </motion.div>
+            {item.type === "note" && (
+              <div style={{ fontSize: 10, color: "#888", marginTop: SP.sm, textAlign: "center", fontStyle: "italic" }}>({item.text})</div>
+            )}
           </motion.div>
-        )}
-      </AnimatePresence>
+        ))}
+
+        {/* Receipt bottom with tear line */}
+        <motion.div
+          initial={{ scaleY: 0, opacity: 0 }}
+          animate={{ scaleY: 1, opacity: 1 }}
+          transition={{ delay: 0.5 + receiptItems.length * 0.08 + 0.25, duration: 0.35 }}
+          style={{ marginTop: SP.md, textAlign: "center", fontSize: 10, color: "#999", letterSpacing: 1 }}>
+          ✂ ✂ ✂
+        </motion.div>
+
+        {/* Thermal printer feed marks (bottom - curl) */}
+        <motion.div
+          initial={{ opacity: 0, scaleY: 0 }}
+          animate={{ opacity: 1, scaleY: 1 }}
+          transition={{ delay: 0.5 + receiptItems.length * 0.08 + 0.4, duration: 0.4 }}
+          style={{
+            position: "absolute",
+            bottom: -10,
+            left: 0,
+            right: 0,
+            height: 10,
+            background: "repeating-linear-gradient(90deg, #ddd 0, #ddd 6px, transparent 6px, transparent 10px)",
+            borderRadius: "0 0 3px 3px",
+            transformOrigin: "top center"
+          }} />
+      </motion.div>
     </div>
   );
 }
