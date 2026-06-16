@@ -37,7 +37,7 @@ const SANS = "Inter, 'Noto Sans Georgian', system-ui, -apple-system, 'Segoe UI',
 const DISP = "Archivo, 'Noto Sans Georgian', system-ui, sans-serif";
 const num = { fontFamily: DISP, fontVariantNumeric: "tabular-nums", fontVariationSettings: "'wdth' 125" };
 const disp = { fontFamily: DISP, fontVariationSettings: "'wdth' 125" };
-const R = { sm: 8, md: 12, lg: 18 };
+const R = { sm: 2, md: 2, lg: 2 };
 const SP = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
 const PAD = SP.lg, BTN = 56;
 const fmt = (n) => Number(n).toFixed(2);
@@ -80,11 +80,9 @@ function BillHeader() {
     <div style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(245,244,250,0.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", paddingTop: "max(16px, env(safe-area-inset-top))" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 56, padding: `0 ${PAD}px`, paddingBottom: SP.md }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 20, fontWeight: 700, color: c.text, letterSpacing: "-0.01em" }}>{VENUE.name}</span>
-          <span style={{ width: 1, height: 18, background: c.line }} />
-          <Logo h={20} />
+          <Logo h={22} />
         </div>
-        <span style={{ height: 44, padding: `0 ${SP.md}px`, borderRadius: 999, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>მაგიდა {VENUE.table}</span>
+        <span style={{ height: 44, padding: `0 ${SP.md}px`, borderRadius: 2, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>მაგიდა {VENUE.table}</span>
       </div>
     </div>
   );
@@ -92,7 +90,7 @@ function BillHeader() {
 
 function Stepper({ value, setValue, min = 2, max = 12 }) {
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", height: 44, borderRadius: 999, background: c.surface, gap: 0 }}>
+    <div style={{ display: "inline-flex", alignItems: "center", height: 44, borderRadius: 2, background: c.surface, gap: 0 }}>
       <button onClick={() => setValue(Math.max(min, value - 1))} style={{ width: 44, height: 44, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer" }} aria-label="Decrease">
         <Minus size={18} color={value <= min ? c.text3 : c.text} />
       </button>
@@ -120,8 +118,7 @@ function Splash() {
       <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: SP.lg }}>
         <Logo h={56} />
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 16, fontWeight: 600, color: c.text }}>{VENUE.name}</div>
-          <div style={{ fontSize: 13, color: c.text2, marginTop: SP.xs }}>მაგიდა {VENUE.table}</div>
+          <div style={{ fontSize: 13, color: c.text2 }}>მაგიდა {VENUE.table}</div>
         </div>
       </motion.div>
       <div style={{ position: "absolute", bottom: "max(16px, env(safe-area-inset-bottom))", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: SP.sm, color: c.text2, fontSize: 12 }}>
@@ -136,7 +133,7 @@ function Processing() {
     <div style={{ height: "100%", width: "100%", display: "grid", placeItems: "center", background: c.bg }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: SP.lg }}>
         <Logo h={32} style={{ marginBottom: SP.sm }} />
-        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: 28, height: 28, borderRadius: 14, border: `2.5px solid ${c.primarySoft}`, borderTopColor: c.primary }} />
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: 28, height: 28, borderRadius: "50%", border: `2.5px solid ${c.primarySoft}`, borderTopColor: c.primary }} />
         <span style={{ fontSize: 14, color: c.text2 }}>მუშავდება გადახდა</span>
       </div>
     </div>
@@ -267,7 +264,7 @@ function SlideButton({ onComplete, disabled, payLabel, amount }) {
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  style={{ width: 24, height: 24, borderRadius: 12, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff" }} />
+                  style={{ width: 24, height: 24, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff" }} />
               </motion.div>
             )}
             {status === "success" && (
@@ -287,11 +284,11 @@ function Avatars({ guests }) {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       {Array.from({ length: show }).map((_, i) => (
-        <div key={i} style={{ width: 32, height: 32, borderRadius: 16, marginLeft: i ? -10 : 0, border: "2px solid #fff", background: i === 0 ? c.primary : c.primarySoft, color: i === 0 ? "#fff" : c.primary, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center" }}>
+        <div key={i} style={{ width: 32, height: 32, borderRadius: 2, marginLeft: i ? -10 : 0, border: "2px solid #fff", background: i === 0 ? c.primary : c.primarySoft, color: i === 0 ? "#fff" : c.primary, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center" }}>
           {i === 0 ? "მე" : i + 1}
         </div>
       ))}
-      {guests > show && <div style={{ width: 32, height: 32, borderRadius: 16, marginLeft: -10, border: "2px solid #fff", background: c.surface, color: c.text2, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center" }}>+{guests - show}</div>}
+      {guests > show && <div style={{ width: 32, height: 32, borderRadius: 2, marginLeft: -10, border: "2px solid #fff", background: c.surface, color: c.text2, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center" }}>+{guests - show}</div>}
     </div>
   );
 }
@@ -312,7 +309,7 @@ function ModeCard({ active, onClick, icon, title, subtitle, right, children }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: SP.sm }}>
           {right}
-          <span style={{ width: 24, height: 24, borderRadius: 12, background: active ? c.primary : "transparent", border: `1.5px solid ${active ? c.primary : c.text3}`, display: "grid", placeItems: "center", transition: "background .2s" }}>
+          <span style={{ width: 24, height: 24, borderRadius: 2, background: active ? c.primary : "transparent", border: `1.5px solid ${active ? c.primary : c.text3}`, display: "grid", placeItems: "center", transition: "background .2s" }}>
             {active && <Check size={15} color="#fff" strokeWidth={3} />}
           </span>
         </div>
@@ -367,7 +364,7 @@ function ActiveBill({ bill, onPay }) {
                   }}>
                   {checklist && (
                     <motion.span animate={on ? { scale: [1, 1.18, 1] } : {}} transition={{ duration: 0.25 }} style={{
-                      width: 24, height: 24, borderRadius: 12, background: on ? c.primary : "transparent", border: `1.5px solid ${on ? c.primary : c.text3}`,
+                      width: 24, height: 24, borderRadius: 2, background: on ? c.primary : "transparent", border: `1.5px solid ${on ? c.primary : c.text3}`,
                       display: "grid", placeItems: "center", flexShrink: 0
                     }}>
                       {on && <Check size={15} color="#fff" strokeWidth={3} />}
@@ -475,7 +472,7 @@ function Confetti() {
   const pieces = useMemo(() => Array.from({ length: 26 }, (_, i) => ({
     id: i, x: (Math.random() * 2 - 1) * 150, rot: Math.random() * 720 - 360, delay: Math.random() * 0.22,
     dur: 1.4 + Math.random() * 0.9, size: 6 + Math.random() * 6, color: palette[i % palette.length],
-    rad: Math.random() > 0.5 ? "50%" : "2px", drift: (Math.random() * 2 - 1) * 40,
+    rad: "1px", drift: (Math.random() * 2 - 1) * 40,
   })), []);
   return (
     <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden", zIndex: 5 }}>
@@ -516,7 +513,7 @@ function Receipt({ result }) {
           transformOrigin: "top center",
           background: "#F5F5F0",
           border: "1px solid #E5E5DC",
-          borderRadius: 3,
+          borderRadius: 2,
           padding: `${SP.md}px ${SP.lg}px`,
           boxShadow: "0 20px 50px rgba(26,26,26,0.28), 0 4px 12px rgba(26,26,26,0.12)",
           position: "relative",
@@ -598,7 +595,7 @@ function Receipt({ result }) {
             right: 0,
             height: 10,
             background: "repeating-linear-gradient(90deg, #ddd 0, #ddd 6px, transparent 6px, transparent 10px)",
-            borderRadius: "0 0 3px 3px",
+            borderRadius: "0 0 2px 2px",
             transformOrigin: "top center"
           }} />
       </motion.div>
@@ -664,7 +661,7 @@ function Sheet({ open, onClose, label, children }) {
           <motion.div key="sheet" ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={label}
             onKeyDown={(e) => e.key === "Escape" && onClose && onClose()}
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", stiffness: 400, damping: 40 }}
-            style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 41, background: c.bg, borderRadius: "20px 20px 0 0", boxShadow: "0 -12px 44px rgba(26,26,26,0.18)", maxHeight: "92%", display: "flex", flexDirection: "column", outline: "none" }}>
+            style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 41, background: c.bg, borderRadius: "2px 2px 0 0", boxShadow: "0 -12px 44px rgba(26,26,26,0.18)", maxHeight: "92%", display: "flex", flexDirection: "column", outline: "none" }}>
             <div style={{ display: "grid", placeItems: "center", paddingTop: SP.sm, flexShrink: 0 }}>
               <span style={{ width: 36, height: 4, borderRadius: 2, background: c.line }} />
             </div>
@@ -689,7 +686,7 @@ function SheetStatus({ children }) {
 function DoneMark() {
   return (
     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 16 }}
-      style={{ width: 64, height: 64, borderRadius: 32, background: c.success, boxShadow: "0 12px 30px -10px rgba(31,168,31,0.5)", display: "grid", placeItems: "center" }}>
+      style={{ width: 64, height: 64, borderRadius: 2, background: c.success, boxShadow: "0 12px 30px -10px rgba(31,168,31,0.5)", display: "grid", placeItems: "center" }}>
       <Check size={32} color="#FFFFFF" strokeWidth={3} />
     </motion.div>
   );
@@ -723,7 +720,7 @@ function ApplePaySheet({ open, payload, onClose, onDone }) {
         </span>
         {closable && (
           <button onClick={onClose} aria-label="დახურვა" style={{ width: 44, height: 44, margin: -6, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
-            <span style={{ width: 32, height: 32, borderRadius: 16, background: c.surface, display: "grid", placeItems: "center" }}>
+            <span style={{ width: 32, height: 32, borderRadius: 2, background: c.surface, display: "grid", placeItems: "center" }}>
               <Close size={13} color={c.text2} strokeWidth={2.5} />
             </span>
           </button>
@@ -733,7 +730,7 @@ function ApplePaySheet({ open, payload, onClose, onDone }) {
         {step === "review" && (
           <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             <div style={{ display: "flex", alignItems: "center", gap: SP.md, padding: SP.md, borderRadius: R.md, background: c.surface }}>
-              <div style={{ width: 46, height: 30, borderRadius: 6, background: "linear-gradient(135deg, #8B6CFF, #4A2EC0)", position: "relative", flexShrink: 0 }}>
+              <div style={{ width: 46, height: 30, borderRadius: 2, background: "linear-gradient(135deg, #8B6CFF, #4A2EC0)", position: "relative", flexShrink: 0 }}>
                 <span style={{ position: "absolute", right: 5, bottom: 4, color: "#fff", fontSize: 7, fontWeight: 700, letterSpacing: "0.06em" }}>VISA</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -798,9 +795,9 @@ function Toggle({ on, onChange, label, sub }) {
   return (
     <button type="button" onClick={() => onChange(!on)} role="switch" aria-checked={on}
       style={{ display: "flex", alignItems: "center", gap: SP.md, width: "100%", background: "none", border: "none", padding: 0, cursor: "pointer", textAlign: "left" }}>
-      <span style={{ width: 46, height: 28, borderRadius: 14, background: on ? c.primary : "rgba(26,26,26,0.14)", position: "relative", transition: "background .2s", flexShrink: 0 }}>
+      <span style={{ width: 46, height: 28, borderRadius: 2, background: on ? c.primary : "rgba(26,26,26,0.14)", position: "relative", transition: "background .2s", flexShrink: 0 }}>
         <motion.span animate={{ x: on ? 18 : 0 }} transition={{ type: "spring", stiffness: 500, damping: 34 }}
-          style={{ position: "absolute", top: 2, left: 2, width: 24, height: 24, borderRadius: 12, background: "#fff", boxShadow: "0 1px 3px rgba(26,26,26,0.25)" }} />
+          style={{ position: "absolute", top: 2, left: 2, width: 24, height: 24, borderRadius: 2, background: "#fff", boxShadow: "0 1px 3px rgba(26,26,26,0.25)" }} />
       </span>
       <span style={{ flex: 1 }}>
         <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: c.text }}>{label}</span>
@@ -827,14 +824,14 @@ function CardPreview({ value, holder, exp }) {
   const brand = cardBrand(digits);
   const shown = digits.padEnd(16, "•").replace(/(.{4})(?=.)/g, "$1 ");
   return (
-    <div style={{ width: "100%", aspectRatio: "1.62", borderRadius: 16, background: "linear-gradient(135deg, #8B6CFF 0%, #734EF9 45%, #4A2EC0 100%)", color: "#fff", padding: SP.lg, display: "flex", flexDirection: "column", justifyContent: "space-between", boxShadow: "0 18px 40px -18px rgba(115,78,249,0.55)", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", right: -40, top: -40, width: 160, height: 160, borderRadius: 80, background: "rgba(255,255,255,0.08)" }} />
-      <div style={{ position: "absolute", right: 30, bottom: -70, width: 140, height: 140, borderRadius: 70, background: "rgba(255,255,255,0.06)" }} />
+    <div style={{ width: "100%", aspectRatio: "1.62", borderRadius: 2, background: "linear-gradient(135deg, #8B6CFF 0%, #734EF9 45%, #4A2EC0 100%)", color: "#fff", padding: SP.lg, display: "flex", flexDirection: "column", justifyContent: "space-between", boxShadow: "0 18px 40px -18px rgba(115,78,249,0.55)", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", right: -40, top: -40, width: 160, height: 160, borderRadius: 2, background: "rgba(255,255,255,0.08)" }} />
+      <div style={{ position: "absolute", right: 30, bottom: -70, width: 140, height: 140, borderRadius: 2, background: "rgba(255,255,255,0.06)" }} />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ ...disp, fontSize: 14, fontWeight: 700, letterSpacing: "0.02em" }}>Avla</span>
         <span style={{ fontSize: 13, fontWeight: 700, fontStyle: "italic", opacity: 0.92, minHeight: 16 }}>{brand}</span>
       </div>
-      <span style={{ width: 38, height: 27, borderRadius: 6, background: "linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.18))" }} />
+      <span style={{ width: 38, height: 27, borderRadius: 2, background: "linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.18))" }} />
       <div style={{ ...num, fontSize: 19, fontWeight: 600, letterSpacing: "0.1em", whiteSpace: "nowrap" }}>{shown}</div>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: SP.md }}>
         <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase", opacity: 0.92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{holder.trim() || "სახელი გვარი"}</span>
@@ -904,7 +901,7 @@ function CardSheet({ open, payload, onClose, onDone }) {
         </span>
         {closable && (
           <button onClick={onClose} aria-label="დახურვა" style={{ width: 44, height: 44, margin: -6, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
-            <span style={{ width: 32, height: 32, borderRadius: 16, background: c.surface, display: "grid", placeItems: "center" }}>
+            <span style={{ width: 32, height: 32, borderRadius: 2, background: c.surface, display: "grid", placeItems: "center" }}>
               <Close size={13} color={c.text2} strokeWidth={2.5} />
             </span>
           </button>
@@ -916,7 +913,7 @@ function CardSheet({ open, payload, onClose, onDone }) {
             {saved && (
               <div style={{ marginBottom: SP.lg }}>
                 <button type="button" onClick={() => setUseSaved(true)} aria-pressed={useSaved} style={{ width: "100%", display: "flex", alignItems: "center", gap: SP.md, padding: SP.md, borderRadius: R.md, background: useSaved ? c.primarySoft2 : c.surface, border: "none", cursor: "pointer", textAlign: "left", boxShadow: useSaved ? `inset 0 0 0 1.5px ${c.primary}` : "none" }}>
-                  <span style={{ width: 24, height: 24, borderRadius: 12, background: useSaved ? c.primary : "transparent", border: `1.5px solid ${useSaved ? c.primary : c.text3}`, display: "grid", placeItems: "center", flexShrink: 0 }}>
+                  <span style={{ width: 24, height: 24, borderRadius: 2, background: useSaved ? c.primary : "transparent", border: `1.5px solid ${useSaved ? c.primary : c.text3}`, display: "grid", placeItems: "center", flexShrink: 0 }}>
                     {useSaved && <Check size={14} color="#fff" strokeWidth={3} />}
                   </span>
                   <span style={{ flex: 1 }}>
@@ -925,7 +922,7 @@ function CardSheet({ open, payload, onClose, onDone }) {
                   </span>
                 </button>
                 <button type="button" onClick={() => setUseSaved(false)} aria-pressed={!useSaved} style={{ width: "100%", display: "flex", alignItems: "center", gap: SP.md, padding: SP.md, marginTop: SP.sm, borderRadius: R.md, background: useSaved ? c.surface : c.primarySoft2, border: "none", cursor: "pointer", textAlign: "left", boxShadow: useSaved ? "none" : `inset 0 0 0 1.5px ${c.primary}` }}>
-                  <span style={{ width: 24, height: 24, borderRadius: 12, background: useSaved ? "transparent" : c.primary, border: `1.5px solid ${useSaved ? c.text3 : c.primary}`, display: "grid", placeItems: "center", flexShrink: 0 }}>
+                  <span style={{ width: 24, height: 24, borderRadius: 2, background: useSaved ? "transparent" : c.primary, border: `1.5px solid ${useSaved ? c.text3 : c.primary}`, display: "grid", placeItems: "center", flexShrink: 0 }}>
                     {!useSaved && <Check size={14} color="#fff" strokeWidth={3} />}
                   </span>
                   <span style={{ fontSize: 14, fontWeight: 600, color: c.text }}>სხვა ბარათით გადახდა</span>
@@ -1005,7 +1002,7 @@ function PaySuccess({ result }) {
       <div style={{ display: "grid", placeItems: "center", paddingTop: "max(16px, env(safe-area-inset-top))", paddingBottom: SP.sm }}><Logo h={24} /></div>
       <div style={{ flex: 1, overflowY: "auto", padding: `${SP.lg}px ${PAD}px`, paddingBottom: "max(40px, calc(env(safe-area-inset-bottom) + 24px))" }} className="no-scrollbar">
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", position: "relative", zIndex: 6, paddingTop: SP.lg }}>
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.05 }} style={{ width: 78, height: 78, borderRadius: 39, background: c.success, boxShadow: "0 12px 30px -10px rgba(31,168,31,0.5)", display: "grid", placeItems: "center" }}>
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.05 }} style={{ width: 78, height: 78, borderRadius: 2, background: c.success, boxShadow: "0 12px 30px -10px rgba(31,168,31,0.5)", display: "grid", placeItems: "center" }}>
             <Check size={40} color="#FFFFFF" strokeWidth={3} />
           </motion.div>
           <h2 style={{ ...disp, fontSize: 28, fontWeight: 700, color: c.text, marginTop: SP.lg }}>გადახდილია</h2>
@@ -1033,7 +1030,7 @@ function PaySuccess({ result }) {
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: SP.sm }}>
                     <span style={{ ...num, fontSize: 11, color: c.text2 }}>{review.length}/300</span>
                     <motion.button whileTap={{ scale: 0.96 }} onClick={() => setSent(true)}
-                      style={{ height: 44, padding: `0 ${SP.lg}px`, borderRadius: 999, background: c.primary, color: "#fff", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}>
+                      style={{ height: 44, padding: `0 ${SP.lg}px`, borderRadius: 2, background: c.primary, color: "#fff", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}>
                       შეფასების გაგზავნა
                     </motion.button>
                   </div>
@@ -1042,7 +1039,7 @@ function PaySuccess({ result }) {
             )}
             {sent && (
               <motion.div key="review-sent" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25 }}
-                style={{ display: "inline-flex", alignItems: "center", gap: SP.sm, marginTop: SP.md, padding: `10px ${SP.lg}px`, borderRadius: 999, background: "rgba(31,168,31,0.10)", color: c.success, fontSize: 13, fontWeight: 600 }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: SP.sm, marginTop: SP.md, padding: `10px ${SP.lg}px`, borderRadius: 2, background: "rgba(31,168,31,0.10)", color: c.success, fontSize: 13, fontWeight: 600 }}>
                 <Check size={15} strokeWidth={2.5} /> მადლობა გამოხმაურებისთვის!
               </motion.div>
             )}

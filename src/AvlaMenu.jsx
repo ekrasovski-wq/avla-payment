@@ -5,7 +5,7 @@ import {
   VENUE, TIPS, METHODS,
   Svg, Plus, Minus, Check, Lock, Star, Close,
   Logo, Money, Amount, Chip, Shell, Splash, Processing, Confetti,
-  Sheet, ApplePaySheet, CardSheet,
+  Sheet, SlideButton, ApplePaySheet, CardSheet,
 } from "./AvlaPayment";
 
 /* ---------- menu-only icons (same geometric line style as the brand set) ---------- */
@@ -67,13 +67,13 @@ function Thumb({ dish, size = 56 }) {
 }
 
 function Tag({ children }) {
-  return <span style={{ fontSize: 10, fontWeight: 600, color: c.success, background: "rgba(31,168,31,0.10)", padding: "2px 6px", borderRadius: 999, letterSpacing: 0.2 }}>{children}</span>;
+  return <span style={{ fontSize: 10, fontWeight: 600, color: c.success, background: "rgba(31,168,31,0.10)", padding: "2px 6px", borderRadius: 2, letterSpacing: 0.2 }}>{children}</span>;
 }
 
 function QtyControl({ qty, onInc, onDec, compact }) {
   const h = compact ? 32 : 36;
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", height: h, borderRadius: 999, background: c.primarySoft, color: c.primary }} onClick={(e) => e.stopPropagation()}>
+    <div style={{ display: "inline-flex", alignItems: "center", height: h, borderRadius: 2, background: c.primarySoft, color: c.primary }} onClick={(e) => e.stopPropagation()}>
       <button onClick={onDec} aria-label="შემცირება" style={{ width: h, height: h, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer", color: c.primary }}>
         {qty <= 1 ? <Trash size={15} color={c.primary} /> : <Minus size={16} color={c.primary} />}
       </button>
@@ -88,7 +88,7 @@ function QtyControl({ qty, onInc, onDec, compact }) {
 function AddButton({ onClick }) {
   return (
     <motion.button whileTap={{ scale: 0.9 }} onClick={(e) => { e.stopPropagation(); onClick(); }} aria-label="კალათაში დამატება"
-      style={{ width: 36, height: 36, borderRadius: 999, background: c.primary, border: "none", display: "grid", placeItems: "center", cursor: "pointer", boxShadow: "0 6px 16px -8px rgba(115,78,249,0.7)" }}>
+      style={{ width: 36, height: 36, borderRadius: 2, background: c.primary, border: "none", display: "grid", placeItems: "center", cursor: "pointer", boxShadow: "0 6px 16px -8px rgba(115,78,249,0.7)" }}>
       <Plus size={18} color="#fff" strokeWidth={2.5} />
     </motion.button>
   );
@@ -129,7 +129,7 @@ function DishDetailSheet({ dish, qty, onClose, onAdd, onInc, onDec }) {
         <div>
           <div style={{ width: "100%", height: 150, borderRadius: R.lg, background: TINT[dish.cat] || c.primarySoft, display: "grid", placeItems: "center", fontSize: 72, lineHeight: 1, position: "relative" }}>
             <span aria-hidden="true">{dish.emoji}</span>
-            <button onClick={onClose} aria-label="დახურვა" style={{ position: "absolute", top: SP.sm, right: SP.sm, width: 36, height: 36, borderRadius: 18, background: "rgba(255,255,255,0.85)", border: "none", display: "grid", placeItems: "center", cursor: "pointer", backdropFilter: "blur(6px)" }}>
+            <button onClick={onClose} aria-label="დახურვა" style={{ position: "absolute", top: SP.sm, right: SP.sm, width: 36, height: 36, borderRadius: 2, background: "rgba(255,255,255,0.85)", border: "none", display: "grid", placeItems: "center", cursor: "pointer", backdropFilter: "blur(6px)" }}>
               <Close size={14} color={c.text2} strokeWidth={2.5} />
             </button>
           </div>
@@ -171,11 +171,9 @@ function MenuHeader({ count }) {
     <div style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(245,244,250,0.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", paddingTop: "max(16px, env(safe-area-inset-top))" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 56, padding: `0 ${PAD}px`, paddingBottom: SP.md }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 20, fontWeight: 700, color: c.text, letterSpacing: "-0.01em" }}>{VENUE.name}</span>
-          <span style={{ width: 1, height: 18, background: c.line }} />
-          <Logo h={20} />
+          <Logo h={22} />
         </div>
-        <span style={{ height: 44, padding: `0 ${SP.md}px`, borderRadius: 999, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>მაგიდა {VENUE.table}</span>
+        <span style={{ height: 44, padding: `0 ${SP.md}px`, borderRadius: 2, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>მაგიდა {VENUE.table}</span>
       </div>
     </div>
   );
@@ -193,7 +191,7 @@ function CategoryBar({ active, onPick }) {
         const on = active === s.id;
         return (
           <button key={s.id} data-cat={s.id} onClick={() => onPick(s.id)} aria-pressed={on}
-            style={{ height: 38, padding: `0 ${SP.md}px`, borderRadius: 999, whiteSpace: "nowrap", fontSize: 14, fontWeight: 600, cursor: "pointer", border: "none", flexShrink: 0, background: on ? c.primary : c.bg, color: on ? c.onPrimary : c.text2, boxShadow: on ? "none" : CARD, transition: "background .2s, color .2s" }}>
+            style={{ height: 38, padding: `0 ${SP.md}px`, borderRadius: 2, whiteSpace: "nowrap", fontSize: 14, fontWeight: 600, cursor: "pointer", border: "none", flexShrink: 0, background: on ? c.primary : c.bg, color: on ? c.onPrimary : c.text2, boxShadow: on ? "none" : CARD, transition: "background .2s, color .2s" }}>
             {s.label}
           </button>
         );
@@ -262,7 +260,7 @@ function MenuScreen({ cart, add, inc, dec, onOpenDish, count, subtotal, onChecko
               style={{ width: "100%", height: BTN, borderRadius: R.lg, border: "none", cursor: "pointer", background: c.primary, color: "#fff", display: "flex", alignItems: "center", gap: SP.md, padding: `0 ${SP.lg}px`, boxShadow: "0 10px 28px -10px rgba(115,78,249,0.75)" }}>
               <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
                 <Bag size={22} color="#fff" />
-                <span style={{ ...num, position: "absolute", top: -8, right: -10, minWidth: 18, height: 18, padding: "0 4px", borderRadius: 9, background: "#fff", color: c.primary, fontSize: 11, fontWeight: 700, display: "grid", placeItems: "center" }}>{count}</span>
+                <span style={{ ...num, position: "absolute", top: -8, right: -10, minWidth: 18, height: 18, padding: "0 4px", borderRadius: 2, background: "#fff", color: c.primary, fontSize: 11, fontWeight: 700, display: "grid", placeItems: "center" }}>{count}</span>
               </span>
               <span style={{ fontSize: 15, fontWeight: 600 }}>შეკვეთის ნახვა</span>
               <Amount value={subtotal} color="#fff" weight={700} style={{ marginLeft: "auto", fontSize: 16 }} />
@@ -292,7 +290,7 @@ function ReviewScreen({ items, inc, dec, subtotal, onBack, onPay }) {
             <ArrowLeft size={22} color={c.text} />
           </button>
           <span style={{ fontSize: 18, fontWeight: 700, color: c.text }}>თქვენი შეკვეთა</span>
-          <span style={{ marginLeft: "auto", height: 44, padding: `0 ${SP.md}px`, borderRadius: 999, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>მაგიდა {VENUE.table}</span>
+          <span style={{ marginLeft: "auto", height: 44, padding: `0 ${SP.md}px`, borderRadius: 2, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>მაგიდა {VENUE.table}</span>
         </div>
       </div>
 
@@ -383,7 +381,7 @@ function OrderReceipt({ result }) {
   return (
     <div style={{ marginTop: SP.xl }}>
       <motion.div initial={{ rotateX: 15, y: 40, opacity: 0, scale: 0.95 }} animate={{ rotateX: 0, y: 0, opacity: 1, scale: 1 }} transition={{ duration: 0.7, ease: "easeOut" }}
-        style={{ transformStyle: "preserve-3d", transformOrigin: "top center", background: "#F5F5F0", border: "1px solid #E5E5DC", borderRadius: 3, padding: `${SP.md}px ${SP.lg}px`, boxShadow: "0 20px 50px rgba(26,26,26,0.28), 0 4px 12px rgba(26,26,26,0.12)", position: "relative", maxWidth: 320, margin: "0 auto" }}>
+        style={{ transformStyle: "preserve-3d", transformOrigin: "top center", background: "#F5F5F0", border: "1px solid #E5E5DC", borderRadius: 2, padding: `${SP.md}px ${SP.lg}px`, boxShadow: "0 20px 50px rgba(26,26,26,0.28), 0 4px 12px rgba(26,26,26,0.12)", position: "relative", maxWidth: 320, margin: "0 auto" }}>
         <div style={{ position: "absolute", top: -10, left: 0, right: 0, height: 5, background: "repeating-linear-gradient(90deg, #bbb 0, #bbb 6px, transparent 6px, transparent 10px)" }} />
         {rows.map((item, idx) => (
           <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: baseDelay + idx * step, duration: 0.4, ease: "easeOut" }} style={{ overflow: "hidden" }}>
@@ -415,7 +413,7 @@ function OrderReceipt({ result }) {
         <motion.div initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: 1, opacity: 1 }} transition={{ delay: baseDelay + rows.length * step + 0.25, duration: 0.35 }}
           style={{ marginTop: SP.md, textAlign: "center", fontSize: 10, color: "#999", letterSpacing: 1 }}>✂ ✂ ✂</motion.div>
         <motion.div initial={{ opacity: 0, scaleY: 0 }} animate={{ opacity: 1, scaleY: 1 }} transition={{ delay: baseDelay + rows.length * step + 0.4, duration: 0.4 }}
-          style={{ position: "absolute", bottom: -10, left: 0, right: 0, height: 10, background: "repeating-linear-gradient(90deg, #ddd 0, #ddd 6px, transparent 6px, transparent 10px)", borderRadius: "0 0 3px 3px", transformOrigin: "top center" }} />
+          style={{ position: "absolute", bottom: -10, left: 0, right: 0, height: 10, background: "repeating-linear-gradient(90deg, #ddd 0, #ddd 6px, transparent 6px, transparent 10px)", borderRadius: "0 0 2px 2px", transformOrigin: "top center" }} />
       </motion.div>
     </div>
   );
@@ -433,7 +431,7 @@ function OrderSuccess({ result }) {
       <div style={{ flex: 1, overflowY: "auto", padding: `${SP.lg}px ${PAD}px`, paddingBottom: "max(40px, calc(env(safe-area-inset-bottom) + 24px))" }} className="no-scrollbar">
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", position: "relative", zIndex: 6, paddingTop: SP.lg }}>
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.05 }}
-            style={{ width: 78, height: 78, borderRadius: 39, background: c.success, boxShadow: "0 12px 30px -10px rgba(31,168,31,0.5)", display: "grid", placeItems: "center" }}>
+            style={{ width: 78, height: 78, borderRadius: 2, background: c.success, boxShadow: "0 12px 30px -10px rgba(31,168,31,0.5)", display: "grid", placeItems: "center" }}>
             <Check size={40} color="#FFFFFF" strokeWidth={3} />
           </motion.div>
           <h2 style={{ ...disp, fontSize: 28, fontWeight: 700, color: c.text, marginTop: SP.lg }}>შეკვეთა მიღებულია</h2>
@@ -454,7 +452,7 @@ function OrderSuccess({ result }) {
           <AnimatePresence>
             {sent && (
               <motion.div key="thanks" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25 }}
-                style={{ display: "inline-flex", alignItems: "center", gap: SP.sm, marginTop: SP.md, padding: `10px ${SP.lg}px`, borderRadius: 999, background: "rgba(31,168,31,0.10)", color: c.success, fontSize: 13, fontWeight: 600 }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: SP.sm, marginTop: SP.md, padding: `10px ${SP.lg}px`, borderRadius: 2, background: "rgba(31,168,31,0.10)", color: c.success, fontSize: 13, fontWeight: 600 }}>
                 <Check size={15} strokeWidth={2.5} /> მადლობა გამოხმაურებისთვის!
               </motion.div>
             )}
