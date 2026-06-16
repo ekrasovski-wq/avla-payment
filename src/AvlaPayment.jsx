@@ -34,9 +34,9 @@ const c = {
 };
 const CARD = "0 1px 2px rgba(26,26,26,0.04), 0 14px 30px -20px rgba(26,26,26,0.20)";
 const SANS = "Inter, 'Noto Sans Georgian', system-ui, -apple-system, 'Segoe UI', sans-serif";
-const DISP = "Archivo, 'Noto Sans Georgian', system-ui, sans-serif";
-const num = { fontFamily: DISP, fontVariantNumeric: "tabular-nums", fontVariationSettings: "'wdth' 125" };
-const disp = { fontFamily: DISP, fontVariationSettings: "'wdth' 125" };
+const DISP = "'Space Grotesk', 'Noto Sans Georgian', system-ui, sans-serif";
+const num = { fontFamily: DISP, fontVariantNumeric: "tabular-nums", letterSpacing: "0.01em" };
+const disp = { fontFamily: DISP };
 const R = { sm: 2, md: 2, lg: 2 };
 const SP = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
 const PAD = SP.lg, BTN = 56;
@@ -147,7 +147,7 @@ function Shell({ children }) {
       const l = document.createElement("link");
       l.id = id;
       l.rel = "stylesheet";
-      l.href = "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,500;125,600;125,700&family=Inter:wght@300;400;500;600&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap";
+      l.href = "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap";
       document.head.appendChild(l);
     }
   }, []);
