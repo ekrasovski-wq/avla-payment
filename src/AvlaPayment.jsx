@@ -287,15 +287,16 @@ function SlideButton({ onComplete, disabled, payLabel, amount }) {
 }
 
 function Avatars({ guests }) {
-  const show = Math.min(guests, 5);
+  const show = Math.min(guests, 4);
+  const sq = { width: 30, height: 30, borderRadius: 2, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center", flexShrink: 0 };
   return (
-    <div style={{ display: "flex", alignItems: "center" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: SP.xs }}>
       {Array.from({ length: show }).map((_, i) => (
-        <div key={i} style={{ width: 32, height: 32, borderRadius: 2, marginLeft: i ? -10 : 0, border: "2px solid #fff", background: i === 0 ? c.primary : c.primarySoft, color: i === 0 ? "#fff" : c.primary, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center" }}>
+        <div key={i} style={{ ...sq, background: i === 0 ? c.primary : c.primarySoft, color: i === 0 ? "#fff" : c.primary }}>
           {i === 0 ? "მე" : i + 1}
         </div>
       ))}
-      {guests > show && <div style={{ width: 32, height: 32, borderRadius: 2, marginLeft: -10, border: "2px solid #fff", background: c.surface, color: c.text2, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center" }}>+{guests - show}</div>}
+      {guests > show && <div style={{ ...sq, background: c.surface, color: c.text2 }}>+{guests - show}</div>}
     </div>
   );
 }
