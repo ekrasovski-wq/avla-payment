@@ -204,20 +204,19 @@ function SlideButton({ onComplete, disabled, payLabel, amount }) {
         <>
           <div style={{
             position: "absolute",
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: "100%",
+            inset: 0,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "space-between",
             gap: SP.sm,
+            padding: `0 ${SP.lg}px 0 ${BTN + SP.sm}px`,
             color: "#fff",
             fontWeight: 600,
             fontSize: 15,
+            pointerEvents: "none",
           }}>
-            <span>{payLabel}</span>
-            <Amount value={amount} color="#fff" style={{ marginLeft: "auto", fontSize: 15 }} />
+            <span style={{ whiteSpace: "nowrap" }}>{payLabel}</span>
+            <Amount value={amount} color="#fff" style={{ fontSize: 15, whiteSpace: "nowrap" }} />
           </div>
 
           <motion.div
@@ -226,16 +225,24 @@ function SlideButton({ onComplete, disabled, payLabel, amount }) {
             dragElastic={0.05}
             dragMomentum={false}
             onDragEnd={handleDragEnd}
-            style={{ x }}
+            style={{
+              x,
+              position: "absolute",
+              left: 4,
+              top: 0,
+              bottom: 0,
+              display: "flex",
+              alignItems: "center",
+              cursor: disabled ? "default" : "grab",
+            }}
             whileTap={!disabled && !completed ? { scale: 1.05 } : {}}
-            className="absolute left-0 top-0 bottom-0 w-20 flex items-center justify-center"
           >
             <motion.div
               style={{
                 width: 48,
                 height: 48,
                 borderRadius: R.md,
-                background: "rgba(255,255,255,0.2)",
+                background: "rgba(255,255,255,0.25)",
                 display: "grid",
                 placeItems: "center",
                 backdropFilter: "blur(8px)",
