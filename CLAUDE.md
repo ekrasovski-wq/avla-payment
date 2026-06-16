@@ -4,7 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Avla** — a premium Georgian QR-based payment platform. Guests scan a table QR code, land on their live bill, and pay in 10–15 seconds with flexible split options (full/equal/by-item), tip selection, and multiple payment methods.
+**Avla** — a premium Georgian QR-based restaurant platform. Each restaurant gets a QR encoding its service tier, resolved by `src/App.jsx` from the `?qr=` param:
+
+- **Payment only** (`?qr=payment`, default) → `AvlaPayment.jsx`. Guests land on their live bill and pay in 10–15 seconds with flexible split options (full/equal/by-item), tip, and multiple payment methods.
+- **Menu + Payment** (`?qr=menu`) → `AvlaMenu.jsx`. Guests browse the menu (category bar, dish cards, dish detail sheet), build an order, then check out (tip + method + slide-to-pay) — reusing the same payment sheets and success/receipt as the payment flow.
+
+`AvlaMenu` imports its design tokens and shared primitives (`Shell`, `SlideButton`, `Chip`, `Sheet`, `ApplePaySheet`, `CardSheet`, `Confetti`, etc.) from `AvlaPayment.jsx` via a named-export block, so both tiers stay pixel-identical and the design system has one source of truth.
 
 **Tech Stack:**
 - React 18 + Framer Motion (spring animations)
@@ -205,8 +210,9 @@ Add to `TIPS`:
 
 | File | Purpose |
 |------|---------|
-| `src/AvlaPayment.jsx` | Single-file payment component (1800 lines, self-contained) |
-| `src/App.jsx` | React root, imports AvlaPayment |
+| `src/AvlaPayment.jsx` | Payment flow + shared design system (tokens, primitives, payment sheets). Named-exports the shared pieces for the menu flow. |
+| `src/AvlaMenu.jsx` | Menu + ordering + checkout flow (`?qr=menu`). Imports shared UI from AvlaPayment. |
+| `src/App.jsx` | React root; routes `?qr=menu` → AvlaMenu, else → AvlaPayment |
 | `src/main.jsx` | React DOM mount point |
 | `index.html` | HTML entry point (Vite SPA template) |
 | `vite.config.js` | Vite build config (port 5173) |

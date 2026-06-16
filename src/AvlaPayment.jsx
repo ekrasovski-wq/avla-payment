@@ -1068,6 +1068,17 @@ function PaySuccess({ result }) {
   );
 }
 
+/* ---------- shared exports (reused by the Menu + Payment flow) ----------
+   These are the same design tokens and primitives the payment flow uses.
+   Re-exported (no behavior change) so AvlaMenu renders in an identical style. */
+export {
+  COL, c, CARD, SANS, DISP, num, disp, R, SP, PAD, BTN, fmt, r2,
+  VENUE, TIPS, METHODS,
+  Svg, ChevronDown, Plus, Minus, Check, Lock, Users, Wallet, ListChecks, Star, Close, FaceId, CardGlyph, ChevronRight, AppleLogo,
+  Logo, Money, Amount, Stepper, Chip, Splash, Processing, Shell, SlideButton, Confetti,
+  Sheet, Spinner, SheetStatus, DoneMark, SheetRow, Field, Toggle, ApplePaySheet, CardSheet,
+};
+
 export default function AvlaPayment() {
   const [screen, setScreen] = useState("splash");
   const [result, setResult] = useState(null);
