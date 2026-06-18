@@ -12,6 +12,7 @@ import {
 const ArrowLeft = (p) => (<Svg {...p}><path d="M19 12 H5" /><path d="M11 6 L5 12 L11 18" /></Svg>);
 const Bag = (p) => (<Svg {...p}><path d="M6 8 H18 L17 20.5 H7 Z" /><path d="M9 8 V6.5 A3 3 0 0 1 15 6.5 V8" /></Svg>);
 const Trash = (p) => (<Svg {...p}><path d="M5 7 H19" /><path d="M9 7 V5 H15 V7" /><path d="M6.5 7 L7.5 20 H16.5 L17.5 7" /></Svg>);
+const Leaf = (p) => (<Svg {...p}><path d="M5 19 C5 11 11 5 19 5 C19 13 13 19 5 19 Z" /><path d="M5 19 L19 5" /></Svg>);
 
 /* ---------- menu data (Georgian restaurant "სუფრა") ---------- */
 const CATS = [
@@ -66,8 +67,14 @@ function Thumb({ dish, size = 56 }) {
   );
 }
 
-function Tag({ children }) {
-  return <span style={{ fontSize: 10, fontWeight: 600, color: c.success, background: "rgba(31,168,31,0.10)", padding: "2px 6px", borderRadius: 2, letterSpacing: 0.2 }}>{children}</span>;
+/* vegetarian indicator — geometric leaf, brand icon style (replaces the "ვეგ" text) */
+function VegBadge({ size = 18 }) {
+  return (
+    <span role="img" aria-label="ვეგეტარიანული" title="ვეგეტარიანული"
+      style={{ display: "inline-grid", placeItems: "center", width: size, height: size, borderRadius: 2, background: "rgba(31,168,31,0.12)", color: c.success, flexShrink: 0 }}>
+      <Leaf size={Math.round(size * 0.66)} color={c.success} strokeWidth={2} />
+    </span>
+  );
 }
 
 function QtyControl({ qty, onInc, onDec, compact }) {
@@ -104,7 +111,7 @@ function DishRow({ dish, qty, onOpen, onInc, onDec, onAdd, first }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: SP.sm }}>
           <span style={{ fontSize: 15, fontWeight: 600, color: c.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{dish.name}</span>
-          {dish.tag && <Tag>{dish.tag}</Tag>}
+          {dish.tag && <VegBadge />}
         </div>
         <div style={{ fontSize: 12.5, color: c.text2, marginTop: 3, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{dish.desc}</div>
         <div style={{ marginTop: 6 }}>
@@ -135,7 +142,7 @@ function DishDetailSheet({ dish, qty, onClose, onAdd, onInc, onDec }) {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: SP.sm, marginTop: SP.lg }}>
             <h3 style={{ ...disp, fontSize: 20, fontWeight: 700, color: c.text, flex: 1 }}>{dish.name}</h3>
-            {dish.tag && <Tag>{dish.tag}</Tag>}
+            {dish.tag && <VegBadge />}
           </div>
           <p style={{ fontSize: 14, color: c.text2, marginTop: SP.sm, lineHeight: 1.5 }}>{dish.desc}</p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: SP.lg }}>
