@@ -654,7 +654,7 @@ function Sheet({ open, onClose, label, children }) {
   useEffect(() => {
     if (open) {
       prevFocus.current = document.activeElement;
-      requestAnimationFrame(() => ref.current && ref.current.focus());
+      requestAnimationFrame(() => ref.current && ref.current.focus({ preventScroll: true }));
     } else if (prevFocus.current && prevFocus.current.focus) {
       prevFocus.current.focus();
       prevFocus.current = null;
