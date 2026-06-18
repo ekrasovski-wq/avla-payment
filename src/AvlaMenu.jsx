@@ -134,7 +134,7 @@ function DishDetailSheet({ dish, qty, onClose, onAdd, onInc, onDec }) {
     <Sheet open={!!dish} onClose={onClose} label={dish ? dish.name : "კერძი"}>
       {dish && (
         <div>
-          <div style={{ width: "100%", height: 170, borderRadius: 2, background: TINT[dish.cat] || c.primarySoft, overflow: "hidden", position: "relative" }}>
+          <div style={{ width: "100%", aspectRatio: "1 / 1", borderRadius: 2, background: TINT[dish.cat] || c.primarySoft, overflow: "hidden", position: "relative" }}>
             <img src={`/images/${dish.id}.jpg`} alt={dish.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             <button onClick={onClose} aria-label="დახურვა" style={{ position: "absolute", top: SP.sm, right: SP.sm, width: 36, height: 36, borderRadius: 2, background: "rgba(255,255,255,0.85)", border: "none", display: "grid", placeItems: "center", cursor: "pointer", backdropFilter: "blur(6px)" }}>
               <Close size={14} color={c.text2} strokeWidth={2.5} />
