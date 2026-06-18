@@ -61,8 +61,8 @@ const SECTIONS = CATS.map((cat) => ({
 /* ---------- small pieces ---------- */
 function Thumb({ dish, size = 56 }) {
   return (
-    <div style={{ width: size, height: size, borderRadius: R.md, background: TINT[dish.cat] || c.primarySoft, display: "grid", placeItems: "center", flexShrink: 0, fontSize: size * 0.46, lineHeight: 1, userSelect: "none" }}>
-      <span aria-hidden="true">{dish.emoji}</span>
+    <div style={{ width: size, height: size, borderRadius: 2, background: TINT[dish.cat] || c.primarySoft, overflow: "hidden", flexShrink: 0 }}>
+      <img src={`/images/${dish.id}.jpg`} alt={dish.name} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
     </div>
   );
 }
@@ -134,8 +134,8 @@ function DishDetailSheet({ dish, qty, onClose, onAdd, onInc, onDec }) {
     <Sheet open={!!dish} onClose={onClose} label={dish ? dish.name : "კერძი"}>
       {dish && (
         <div>
-          <div style={{ width: "100%", height: 150, borderRadius: R.lg, background: TINT[dish.cat] || c.primarySoft, display: "grid", placeItems: "center", fontSize: 72, lineHeight: 1, position: "relative" }}>
-            <span aria-hidden="true">{dish.emoji}</span>
+          <div style={{ width: "100%", height: 170, borderRadius: 2, background: TINT[dish.cat] || c.primarySoft, overflow: "hidden", position: "relative" }}>
+            <img src={`/images/${dish.id}.jpg`} alt={dish.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             <button onClick={onClose} aria-label="დახურვა" style={{ position: "absolute", top: SP.sm, right: SP.sm, width: 36, height: 36, borderRadius: 2, background: "rgba(255,255,255,0.85)", border: "none", display: "grid", placeItems: "center", cursor: "pointer", backdropFilter: "blur(6px)" }}>
               <Close size={14} color={c.text2} strokeWidth={2.5} />
             </button>
