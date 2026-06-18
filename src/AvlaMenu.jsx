@@ -160,9 +160,10 @@ function DishDetailSheet({ dish, qty, onClose, onAdd, onInc, onDec }) {
               </div>
             ) : (
               <motion.button whileTap={{ scale: 0.97 }} onClick={onAdd}
-                style={{ width: "100%", height: BTN, borderRadius: R.lg, border: "none", background: c.primary, color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: SP.sm }}>
-                <Plus size={18} color="#fff" strokeWidth={2.5} /> კალათაში დამატება
-                <Money value={dish.price} color="#fff" weight={600} style={{ marginLeft: "auto", fontSize: 15 }} />
+                style={{ width: "100%", height: BTN, padding: `0 ${SP.lg}px`, borderRadius: R.lg, border: "none", background: c.primary, color: "#fff", fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: SP.sm }}>
+                <Plus size={18} color="#fff" strokeWidth={2.5} />
+                <span style={{ whiteSpace: "nowrap" }}>კალათაში დამატება</span>
+                <Money value={dish.price} color="#fff" weight={600} style={{ marginLeft: "auto", fontSize: 15, whiteSpace: "nowrap" }} />
               </motion.button>
             )}
           </div>
