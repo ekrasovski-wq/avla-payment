@@ -269,8 +269,13 @@ function GameOverlay({ onClose }) {
     const loop = (t) => {
       const dt = Math.min((t - last) / 1000, 0.045);
       last = t;
+      const g = G.current;
       if (phaseRef.current === "playing") {
-        if (tick(G.current, dt)) endRun();
+        if (tick(g, dt)) endRun();
+      } else if (g && g.shake > 0) {
+        // after the run ends the sim is frozen, so fade the death-shake out
+        // here (~3s) instead of letting it jitter forever.
+        g.shake = Math.max(0, g.shake - dt / 3);
       }
       draw();
       raf = requestAnimationFrame(loop);
