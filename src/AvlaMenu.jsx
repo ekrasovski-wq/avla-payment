@@ -7,6 +7,7 @@ import {
   Logo, Money, Amount, Chip, Shell, Splash, Processing, Confetti,
   Sheet, SlideButton, ApplePaySheet, CardSheet,
 } from "./AvlaPayment";
+import { GameCard } from "./AvlaGame";
 
 /* ---------- menu-only icons (same geometric line style as the brand set) ---------- */
 const ArrowLeft = (p) => (<Svg {...p}><path d="M19 12 H5" /><path d="M11 6 L5 12 L11 18" /></Svg>);
@@ -466,6 +467,8 @@ function OrderSuccess({ result }) {
             )}
           </AnimatePresence>
         </div>
+
+        <div style={{ marginTop: SP.xl }}><GameCard /></div>
 
         <OrderReceipt result={result} />
         <div style={{ textAlign: "center", marginTop: SP.lg, fontSize: 13, color: c.text2 }}>

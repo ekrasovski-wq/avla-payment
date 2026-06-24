@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, animate, useMotionValue } from "framer-motion";
+import { GameCard } from "./AvlaGame";
 
 /* Avla brand icons */
 function Svg({ size = 24, color = "currentColor", strokeWidth = 2, fill = "none", children, ...rest }) {
@@ -1054,6 +1055,7 @@ function PaySuccess({ result }) {
           </AnimatePresence>
         </div>
 
+        <div style={{ marginTop: SP.xl }}><GameCard subtitle="ერთი პარტია ავლა-მორბენალი, სანამ ემზადებით" /></div>
         <div style={{ marginTop: SP.xl }}><Receipt result={result} /></div>
         <div style={{ textAlign: "center", marginTop: SP.lg, fontSize: 13, color: c.text2 }}>
           {result.receipt ? `ქვითარი გაიგზავნა: ${result.receipt}` : "ქვითარი ხელმისაწვდომია ზემოთ"}
