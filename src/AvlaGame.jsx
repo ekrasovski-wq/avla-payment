@@ -28,6 +28,55 @@ function rr(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
+/* ---- the user's generative pattern: bracket glyphs (Π, ⌐, ⊔, corner-L) ---- */
+function gPi(ctx, x, y, s, th) { ctx.fillRect(x, y, s, th); ctx.fillRect(x, y, th, s); ctx.fillRect(x + s - th, y, th, s); }
+function gCornerL(ctx, x, y, s, th) { ctx.fillRect(x, y, s, th); ctx.fillRect(x, y, th, s); }
+function gCornerR(ctx, x, y, s, th) { ctx.fillRect(x, y, s, th); ctx.fillRect(x + s - th, y, th, s); }
+function gU(ctx, x, y, s, th) { ctx.fillRect(x, y + s - th, s, th); ctx.fillRect(x, y, th, s); ctx.fillRect(x + s - th, y, th, s); ctx.fillRect(x + (s - th) / 2, y - s * 0.42, th, s * 0.36); }
+const GLYPHS = [gPi, gCornerL, gU, gCornerR];
+
+/* scrolling background made of the bracket glyphs (parallax) */
+function drawBgGlyphs(ctx, dist, gy, W) {
+  ctx.fillStyle = "rgba(124,92,242,0.08)";
+  const cell = 60, s = 18, th = 4, ox = (dist * 0.22) % cell;
+  let row = 0;
+  for (let yy = 36; yy < gy - 30; yy += cell) {
+    let col = 0;
+    for (let xx = -cell; xx < W + cell; xx += cell) {
+      if ((col + row) % 3 !== 1) GLYPHS[(col * 5 + row * 3) & 3](ctx, xx - ox + (row % 2 ? cell / 2 : 0), yy, s, th);
+      col++;
+    }
+    row++;
+  }
+}
+
+/* the path/terrain strip — your pattern: a path line + hanging leg-teeth */
+function drawTerrain(ctx, dist, gy, W) {
+  ctx.fillStyle = "rgba(115,78,249,0.13)"; ctx.fillRect(-12, gy, W + 24, GROUND_H + 12);
+  ctx.fillStyle = PURPLE; ctx.fillRect(-12, gy, W + 24, 5);
+  ctx.fillStyle = "rgba(115,78,249,0.6)";
+  const period = 46, ox = dist % period, lens = [24, 14, 20, 12];
+  let i = 0;
+  for (let x = -period; x < W + period; x += period) {
+    const lx = x - ox;
+    ctx.fillRect(lx + 7, gy + 11, 7, lens[i % 4]);
+    ctx.fillRect(lx + 22, gy + 11, 7, lens[(i + 2) % 4]);
+    ctx.fillRect(lx + 34, gy + 11, 6, lens[(i + 1) % 4]);
+    i++;
+  }
+}
+
+/* obstacle drawn as a solid block with a Π-style pattern cap */
+function drawObstacle(ctx, o, gy) {
+  const x = o.x, w = o.w, h = o.h, oy = gy - h;
+  ctx.fillStyle = o.tall ? GRAPHITE : PURPLE;
+  rr(ctx, x, oy + 5, w, h - 5, 2); ctx.fill();
+  ctx.fillRect(x - 3, oy, w + 6, 6);
+  ctx.fillStyle = "rgba(255,255,255,0.18)"; ctx.fillRect(x - 3, oy, w + 6, 3);
+  ctx.fillStyle = o.tall ? "rgba(0,0,0,0.22)" : "rgba(40,28,82,0.85)";
+  ctx.fillRect(x + w / 2 - 3, oy + 6, 6, Math.min(h * 0.42, 13));
+}
+
 /* draw the Avla creature with squash/stretch, leg run cycle, blink, death face */
 function drawAvla(ctx, g, gy) {
   const x = CHAR_X, y = g.charY, w = CW, h = CH;
@@ -168,12 +217,8 @@ function GameOverlay({ onClose }) {
       ctx.fillStyle = bg;
       ctx.fillRect(-12, -12, W + 24, H + 24);
 
-      // QR-like generative pattern, parallax
-      ctx.fillStyle = "rgba(115,78,249,0.06)";
-      const cell = 26, ox = (g.dist * 0.16) % cell;
-      for (let yy = 26; yy < gy - 18; yy += cell)
-        for (let xx = -cell; xx < W + cell; xx += cell)
-          if (((xx / cell + yy / cell) | 0) % 3 === 0) ctx.fillRect(xx - ox, yy, 7, 7);
+      // background — the brand's generative bracket pattern
+      drawBgGlyphs(ctx, g.dist, gy, W);
 
       // coins
       for (const cn of g.coins) {
@@ -197,20 +242,11 @@ function GameOverlay({ onClose }) {
       }
       ctx.globalAlpha = 1;
 
-      // ground
-      ctx.fillStyle = "rgba(255,255,255,0.05)"; ctx.fillRect(-12, gy, W + 24, GROUND_H + 12);
-      ctx.fillStyle = PURPLE; ctx.fillRect(-12, gy, W + 24, 3);
-      ctx.fillStyle = "rgba(115,78,249,0.5)";
-      const tox = g.dist % 22;
-      for (let xx = -22; xx < W + 22; xx += 22) ctx.fillRect(xx - tox, gy + 9, 9, 3);
+      // terrain — the path strip with hanging leg-teeth (your pattern)
+      drawTerrain(ctx, g.dist, gy, W);
 
-      // obstacles
-      for (const o of g.obstacles) {
-        const oy = gy - o.h;
-        ctx.fillStyle = o.tall ? GRAPHITE : PURPLE;
-        rr(ctx, o.x, oy, o.w, o.h, 2); ctx.fill();
-        ctx.fillStyle = "rgba(255,255,255,0.16)"; ctx.fillRect(o.x, oy, o.w, 3);
-      }
+      // obstacles — angular pattern blocks
+      for (const o of g.obstacles) drawObstacle(ctx, o, gy);
 
       // character
       drawAvla(ctx, g, gy);
