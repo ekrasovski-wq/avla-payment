@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, animate, useMotionValue } from "framer-motion";
 import { GameCard } from "./AvlaGame";
+import { useT, LangToggle } from "./i18n";
 
 /* Avla brand icons */
 function Svg({ size = 24, color = "currentColor", strokeWidth = 2, fill = "none", children, ...rest }) {
@@ -46,14 +47,14 @@ const r2 = (n) => Math.round(n * 100) / 100;
 
 const VENUE = { name: "სუფრა", table: 14 };
 const OPEN_BILL = [
-  { id: "ob1", name: "აჭარული ხაჭაპური", qty: 1, total: 16.0 },
-  { id: "ob2", name: "ხინკალი კალმახით", qty: 7, total: 12.6 },
-  { id: "ob3", name: "ღორის მწვადი", qty: 2, total: 48.0 },
-  { id: "ob4", name: "სეზონური სალათი", qty: 1, total: 11.0 },
-  { id: "ob5", name: "საფერავი", qty: 2, total: 24.0 },
+  { id: "ob1", name: "აჭარული ხაჭაპური", name_en: "Adjarian Khachapuri", qty: 1, total: 16.0 },
+  { id: "ob2", name: "ხინკალი კალმახით", name_en: "Trout Khinkali", qty: 7, total: 12.6 },
+  { id: "ob3", name: "ღორის მწვადი", name_en: "Pork Mtsvadi", qty: 2, total: 48.0 },
+  { id: "ob4", name: "სეზონური სალათი", name_en: "Seasonal Salad", qty: 1, total: 11.0 },
+  { id: "ob5", name: "საფერავი", name_en: "Saperavi", qty: 2, total: 24.0 },
 ];
 const TIPS = [{ id: "t0", label: "0%", pct: 0 }, { id: "t10", label: "10%", pct: 0.1 }, { id: "t15", label: "15%", pct: 0.15 }, { id: "t20", label: "20%", pct: 0.2 }];
-const METHODS = [{ id: "apple", label: "Apple Pay" }, { id: "google", label: "Google Pay" }, { id: "card", label: "ბარათით" }];
+const METHODS = [{ id: "apple", label: "Apple Pay" }, { id: "google", label: "Google Pay" }, { id: "card", label: "ბარათით", label_en: "Card" }];
 
 const AVLA_LOGO = "/avla-logo.png";
 
@@ -77,13 +78,17 @@ function Amount({ value, size = 14, weight = 600, color = c.text, style = {} }) 
 }
 
 function BillHeader() {
+  const { t } = useT();
   return (
     <div style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(245,244,250,0.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", paddingTop: "max(16px, env(safe-area-inset-top))" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 56, padding: `0 ${PAD}px`, paddingBottom: SP.md }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Logo h={22} />
         </div>
-        <span style={{ height: 44, padding: `0 ${SP.md}px`, borderRadius: 2, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>მაგიდა {VENUE.table}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: SP.sm }}>
+          <LangToggle />
+          <span style={{ height: 44, padding: `0 ${SP.md}px`, borderRadius: 2, background: c.surface, color: c.text2, fontSize: 12, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>{t("მაგიდა", "Table")} {VENUE.table}</span>
+        </div>
       </div>
     </div>
   );
@@ -114,28 +119,30 @@ function Chip({ on, onClick, children }) {
 }
 
 function Splash() {
+  const { t } = useT();
   return (
     <div style={{ height: "100%", width: "100%", display: "grid", placeItems: "center", background: c.bg, position: "relative", padding: "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)" }}>
       <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: SP.lg }}>
         <Logo h={56} />
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 13, color: c.text2 }}>მაგიდა {VENUE.table}</div>
+          <div style={{ fontSize: 13, color: c.text2 }}>{t("მაგიდა", "Table")} {VENUE.table}</div>
         </div>
       </motion.div>
       <div style={{ position: "absolute", bottom: "max(16px, env(safe-area-inset-bottom))", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: SP.sm, color: c.text2, fontSize: 12 }}>
-        <Lock size={12} /> უსაფრთხო გადახდა
+        <Lock size={12} /> {t("უსაფრთხო გადახდა", "Secure payment")}
       </div>
     </div>
   );
 }
 
 function Processing() {
+  const { t } = useT();
   return (
     <div style={{ height: "100%", width: "100%", display: "grid", placeItems: "center", background: c.bg }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: SP.lg }}>
         <Logo h={32} style={{ marginBottom: SP.sm }} />
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} style={{ width: 28, height: 28, borderRadius: "50%", border: `2.5px solid ${c.primarySoft}`, borderTopColor: c.primary }} />
-        <span style={{ fontSize: 14, color: c.text2 }}>მუშავდება გადახდა</span>
+        <span style={{ fontSize: 14, color: c.text2 }}>{t("მუშავდება გადახდა", "Processing payment")}</span>
       </div>
     </div>
   );
@@ -154,7 +161,7 @@ function Shell({ children }) {
   }, []);
   return (
     <div style={{ width: "100%", minHeight: "100dvh", display: "grid", placeItems: "center", background: "rgba(26,26,26,0.05)", fontFamily: SANS, color: c.text }}>
-      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}*{-webkit-tap-highlight-color:transparent}::selection{background:${c.primarySoft}}`}</style>
+      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}*{-webkit-tap-highlight-color:transparent}::selection{background:${c.primarySoft}}@keyframes avUp{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes avFade{from{opacity:0}to{opacity:1}}`}</style>
       <div style={{ position: "relative", width: "100%", maxWidth: "420px", height: "100dvh", background: c.surface, overflow: "hidden", boxShadow: "0 0 0 1px rgba(0,0,0,0.06)" }}>
         {children}
       </div>
@@ -288,13 +295,14 @@ function SlideButton({ onComplete, disabled, payLabel, amount }) {
 }
 
 function Avatars({ guests }) {
+  const { t } = useT();
   const show = Math.min(guests, 4);
   const sq = { width: 30, height: 30, borderRadius: 2, fontSize: 11, fontWeight: 600, display: "grid", placeItems: "center", flexShrink: 0 };
   return (
     <div style={{ display: "flex", alignItems: "center", gap: SP.xs }}>
       {Array.from({ length: show }).map((_, i) => (
         <div key={i} style={{ ...sq, background: i === 0 ? c.primary : c.primarySoft, color: i === 0 ? "#fff" : c.primary }}>
-          {i === 0 ? "მე" : i + 1}
+          {i === 0 ? t("მე", "Me") : i + 1}
         </div>
       ))}
       {guests > show && <div style={{ ...sq, background: c.surface, color: c.text2 }}>+{guests - show}</div>}
@@ -335,6 +343,7 @@ function ModeCard({ active, onClick, icon, title, subtitle, right, children }) {
 }
 
 function ActiveBill({ bill, onPay }) {
+  const { t } = useT();
   const subtotal = bill.reduce((s, l) => s + l.total, 0);
   const [mode, setMode] = useState("full");
   const [guests, setGuests] = useState(2);
@@ -350,7 +359,7 @@ function ActiveBill({ bill, onPay }) {
   const blocked = mode === "item" && picked.size === 0;
   const checklist = mode === "item";
   const togglePick = (id) => setPicked((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const payLabel = method === "apple" ? "Apple Pay" : method === "google" ? "Google Pay" : "ბარათით გადახდა";
+  const payLabel = method === "apple" ? "Apple Pay" : method === "google" ? "Google Pay" : t("ბარათით გადახდა", "Pay by card");
 
   return (
     <motion.div key="bill" style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
@@ -359,7 +368,7 @@ function ActiveBill({ bill, onPay }) {
 
         {/* BILL CARD */}
         <div style={{ borderRadius: R.lg, background: c.bg, boxShadow: CARD, overflow: "hidden" }}>
-          <div style={{ padding: `${SP.lg}px ${SP.lg}px ${SP.sm}px`, color: c.text2, fontSize: 12, fontWeight: 600 }}>თქვენი ანგარიში</div>
+          <div style={{ padding: `${SP.lg}px ${SP.lg}px ${SP.sm}px`, color: c.text2, fontSize: 12, fontWeight: 600 }}>{t("თქვენი ანგარიში", "Your bill")}</div>
           <div style={{ padding: `0 ${SP.lg}px ${SP.sm}px` }}>
             {bill.map((l, k) => {
               const on = picked.has(l.id);
@@ -379,7 +388,7 @@ function ActiveBill({ bill, onPay }) {
                       {on && <Check size={15} color="#fff" strokeWidth={3} />}
                     </motion.span>
                   )}
-                  <span style={{ flex: 1, fontSize: 14, color: c.text }}><span style={{ ...num, color: c.text2, marginRight: 6 }}>{l.qty}×</span>{l.name}</span>
+                  <span style={{ flex: 1, fontSize: 14, color: c.text }}><span style={{ ...num, color: c.text2, marginRight: 6 }}>{l.qty}×</span>{t(l.name, l.name_en)}</span>
                   <Money value={l.total} color={checklist && !on ? c.text2 : c.text} />
                 </motion.div>
               );
@@ -387,68 +396,68 @@ function ActiveBill({ bill, onPay }) {
           </div>
           <div style={{ height: 1, background: c.div, margin: `0 ${SP.lg}px` }} />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: `${SP.md}px ${SP.lg}px`, fontSize: 13, color: c.text2 }}>
-            {checklist ? "მონიშნული" : "სრული ანგარიში"}
+            {checklist ? t("მონიშნული", "Selected") : t("სრული ანგარიში", "Full bill")}
             <Money value={checklist ? pickedSum : subtotal} size={15} weight={600} />
           </div>
         </div>
 
         {/* YOU PAY */}
         <div style={{ marginTop: SP.xl }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: c.text2 }}>თქვენ იხდით</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: c.text2 }}>{t("თქვენ იხდით", "You pay")}</div>
           <div style={{ marginTop: 4 }}><Amount value={payTotal} size={48} weight={700} /></div>
         </div>
 
         {/* MODE SELECTION */}
-        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>როგორ გადაიხდით?</div>
-        <ModeCard active={mode === "full"} onClick={() => setMode("full")} icon={<Wallet size={20} />} title="სრულად გადახდა" subtitle="მთელი ანგარიში"
+        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>{t("როგორ გადაიხდით?", "How will you pay?")}</div>
+        <ModeCard active={mode === "full"} onClick={() => setMode("full")} icon={<Wallet size={20} />} title={t("სრულად გადახდა", "Pay in full")} subtitle={t("მთელი ანგარიში", "The whole bill")}
           right={<Money value={subtotal} size={14} weight={600} color={mode === "full" ? c.text : c.text2} />} />
-        <ModeCard active={mode === "equal"} onClick={() => setMode("equal")} icon={<Users size={20} />} title="თანაბრად გაყოფა" subtitle={`${guests} სტუმარი`}>
+        <ModeCard active={mode === "equal"} onClick={() => setMode("equal")} icon={<Users size={20} />} title={t("თანაბრად გაყოფა", "Split evenly")} subtitle={`${guests} ${t("სტუმარი", "guests")}`}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: SP.md }}>
             <Avatars guests={guests} />
             <Stepper value={guests} setValue={setGuests} min={2} max={12} />
           </div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: SP.md }}>
-            <span style={{ fontSize: 13, color: c.text2 }}>თითო სტუმარი</span>
+            <span style={{ fontSize: 13, color: c.text2 }}>{t("თითო სტუმარი", "Per guest")}</span>
             <Money value={subtotal / guests} size={18} weight={700} color={c.primary} />
           </div>
         </ModeCard>
-        <ModeCard active={mode === "item"} onClick={() => setMode("item")} icon={<ListChecks size={20} />} title="ჩემი კერძების გადახდა" subtitle="მონიშნეთ რაც შეჭამეთ"
+        <ModeCard active={mode === "item"} onClick={() => setMode("item")} icon={<ListChecks size={20} />} title={t("ჩემი კერძების გადახდა", "Pay for my dishes")} subtitle={t("მონიშნეთ რაც შეჭამეთ", "Select what you ate")}
           right={mode === "item" ? <Money value={pickedSum} size={14} weight={600} color={c.primary} /> : null}>
-          <div style={{ fontSize: 12, color: c.text2, paddingTop: 4 }}>მონიშნეთ თქვენი კერძები ზემოთ, ანგარიშში.</div>
+          <div style={{ fontSize: 12, color: c.text2, paddingTop: 4 }}>{t("მონიშნეთ თქვენი კერძები ზემოთ, ანგარიშში.", "Select your dishes above, in the bill.")}</div>
         </ModeCard>
 
         {/* TIP */}
-        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>მადლობა მომსახურებისთვის</div>
+        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>{t("მადლობა მომსახურებისთვის", "Thanks for the service")}</div>
         <div style={{ display: "flex", gap: SP.sm, marginTop: SP.sm }}>
-          {TIPS.map((t) => <Chip key={t.id} on={tip.mode === "pct" && tip.pct === t.pct} onClick={() => setTip((p) => ({ ...p, mode: "pct", pct: t.pct }))}>{t.label}</Chip>)}
-          <Chip on={tip.mode === "custom"} onClick={() => setTip((p) => ({ ...p, mode: "custom" }))}>სხვა</Chip>
+          {TIPS.map((tp) => <Chip key={tp.id} on={tip.mode === "pct" && tip.pct === tp.pct} onClick={() => setTip((p) => ({ ...p, mode: "pct", pct: tp.pct }))}>{tp.label}</Chip>)}
+          <Chip on={tip.mode === "custom"} onClick={() => setTip((p) => ({ ...p, mode: "custom" }))}>{t("სხვა", "Other")}</Chip>
         </div>
         {tip.mode === "custom" && (
           <div style={{ display: "flex", alignItems: "center", marginTop: SP.sm, height: 44, padding: `0 ${SP.lg}px`, borderRadius: R.md, background: c.bg, boxShadow: CARD, gap: SP.sm }}>
-            <span style={{ fontSize: 14, color: c.text2 }}>დანამატი</span>
-            <input inputMode="decimal" aria-label="დანამატის თანხა" value={tip.custom} onChange={(e) => setTip((p) => ({ ...p, mode: "custom", custom: e.target.value.replace(/[^0-9.]/g, "") }))} placeholder="0.00"
+            <span style={{ fontSize: 14, color: c.text2 }}>{t("დანამატი", "Tip")}</span>
+            <input inputMode="decimal" aria-label={t("დანამატის თანხა", "Tip amount")} value={tip.custom} onChange={(e) => setTip((p) => ({ ...p, mode: "custom", custom: e.target.value.replace(/[^0-9.]/g, "") }))} placeholder="0.00"
               style={{ ...num, flex: 1, textAlign: "right", border: "none", outline: "none", background: "transparent", fontSize: 16, fontWeight: 600, color: c.text }} />
             <span style={{ ...num, fontSize: 16, fontWeight: 600, color: c.text }}>₾</span>
           </div>
         )}
-        {tipAmt > 0 && <div style={{ marginTop: SP.sm, fontSize: 12, color: c.text2 }}>დაემატება {fmt(tipAmt)} ₾</div>}
+        {tipAmt > 0 && <div style={{ marginTop: SP.sm, fontSize: 12, color: c.text2 }}>{t("დაემატება", "Adds")} {fmt(tipAmt)} ₾</div>}
 
         {/* METHOD */}
-        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>გადახდის მეთოდი</div>
+        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>{t("გადახდის მეთოდი", "Payment method")}</div>
         <div style={{ display: "flex", gap: SP.sm, marginTop: SP.sm }}>
-          {METHODS.map((m) => <Chip key={m.id} on={method === m.id} onClick={() => setMethod(m.id)}>{m.label}</Chip>)}
+          {METHODS.map((m) => <Chip key={m.id} on={method === m.id} onClick={() => setMethod(m.id)}>{t(m.label, m.label_en)}</Chip>)}
         </div>
 
         {/* RECEIPT */}
-        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>ქვითარი</div>
+        <div style={{ marginTop: SP.xl, fontSize: 13, fontWeight: 500, color: c.text2 }}>{t("ქვითარი", "Receipt")}</div>
         <div style={{ display: "flex", alignItems: "center", marginTop: SP.sm, height: 44, padding: `0 ${SP.lg}px`, borderRadius: R.md, background: c.bg, boxShadow: CARD }}>
-          <input value={receipt} onChange={(e) => setReceipt(e.target.value)} placeholder="ტელეფონი ან ელ. ფოსტა (არასავალდებულო)" aria-label="ტელეფონი ან ელ. ფოსტა ქვითრისთვის"
+          <input value={receipt} onChange={(e) => setReceipt(e.target.value)} placeholder={t("ტელეფონი ან ელ. ფოსტა (არასავალდებულო)", "Phone or email (optional)")} aria-label={t("ტელეფონი ან ელ. ფოსტა ქვითრისთვის", "Phone or email for the receipt")}
             style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 16, color: c.text, fontFamily: SANS }} />
         </div>
 
         {/* SECURITY */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: SP.xl, gap: SP.sm, fontSize: 12, color: c.text2 }}>
-          <Lock size={12} /> უსაფრთხო გადახდა
+          <Lock size={12} /> {t("უსაფრთხო გადახდა", "Secure payment")}
         </div>
       </div>
 
@@ -460,7 +469,7 @@ function ActiveBill({ bill, onPay }) {
               width: "100%", height: BTN, borderRadius: R.lg, background: "rgba(115,78,249,0.40)",
               display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 600, color: c.text
             }}>
-              აირჩიეთ კერძები
+              {t("აირჩიეთ კერძები", "Select dishes")}
             </div>
           ) : (
             <SlideButton
@@ -496,16 +505,18 @@ function Confetti() {
 }
 
 function Receipt({ result }) {
-  const methodLabel = METHODS.find((m) => m.id === result.method).label + (result.cardLast4 ? ` •••• ${result.cardLast4}` : "");
-  const note = result.mode === "equal" ? `გაყოფილია ${result.guests} ნაწილად` : result.mode === "item" ? "გადახდილია არჩეული კერძები" : null;
+  const { t } = useT();
+  const method = METHODS.find((m) => m.id === result.method);
+  const methodLabel = t(method.label, method.label_en) + (result.cardLast4 ? ` •••• ${result.cardLast4}` : "");
+  const note = result.mode === "equal" ? `${t("გაყოფილია", "Split into")} ${result.guests} ${t("ნაწილად", "parts")}` : result.mode === "item" ? t("გადახდილია არჩეული კერძები", "Selected dishes paid") : null;
   const lines = result.mode === "item" ? OPEN_BILL.filter((l) => result.picked.includes(l.id)) : OPEN_BILL;
 
   const receiptItems = [
-    { type: "header", label: VENUE.name, subLabel: `მაგიდა ${result.guests}` },
-    ...lines.map((l) => ({ type: "line", qty: l.qty, name: l.name, total: l.total })),
+    { type: "header", label: VENUE.name, subLabel: `${t("მაგიდა", "Table")} ${result.guests}` },
+    ...lines.map((l) => ({ type: "line", qty: l.qty, name: t(l.name, l.name_en), total: l.total })),
     { type: "divider" },
-    { type: "row", label: "თქვენი წილი", value: result.share },
-    { type: "row", label: "დანამატი", value: result.tip },
+    { type: "row", label: t("თქვენი წილი", "Your share"), value: result.share },
+    { type: "row", label: t("დანამატი", "Tip"), value: result.tip },
     { type: "total", label: methodLabel, value: result.total },
     ...(note ? [{ type: "note", text: note }] : [])
   ];
@@ -665,12 +676,11 @@ function Sheet({ open, onClose, label, children }) {
     <AnimatePresence>
       {open && (
         <>
-          <motion.div key="backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}
-            onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(26,26,26,0.45)", zIndex: 40 }} />
+          <motion.div key="backdrop"
+            onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(26,26,26,0.45)", zIndex: 40, animation: "avFade 0.26s ease" }} />
           <motion.div key="sheet" ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={label}
             onKeyDown={(e) => e.key === "Escape" && onClose && onClose()}
-            initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", stiffness: 400, damping: 40 }}
-            style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 41, background: c.bg, borderRadius: "2px 2px 0 0", boxShadow: "0 -12px 44px rgba(26,26,26,0.18)", maxHeight: "92%", display: "flex", flexDirection: "column", outline: "none" }}>
+            style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 41, background: c.bg, borderRadius: "2px 2px 0 0", boxShadow: "0 -12px 44px rgba(26,26,26,0.18)", maxHeight: "92%", display: "flex", flexDirection: "column", outline: "none", animation: "avUp 0.34s cubic-bezier(0.32,0.72,0,1)" }}>
             <div style={{ display: "grid", placeItems: "center", paddingTop: SP.sm, flexShrink: 0 }}>
               <span style={{ width: 36, height: 4, borderRadius: 2, background: c.line }} />
             </div>
@@ -711,6 +721,7 @@ function SheetRow({ label, children }) {
 }
 
 function ApplePaySheet({ open, payload, onClose, onDone }) {
+  const { t } = useT();
   const [step, setStep] = useState("review"); // review → auth → processing → done
   useEffect(() => { if (open) setStep("review"); }, [open]);
   useEffect(() => {
@@ -728,7 +739,7 @@ function ApplePaySheet({ open, payload, onClose, onDone }) {
           <AppleLogo size={17} color={c.text} style={{ marginTop: -2 }} /> Pay
         </span>
         {closable && (
-          <button onClick={onClose} aria-label="დახურვა" style={{ width: 44, height: 44, margin: -6, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
+          <button onClick={onClose} aria-label={t("დახურვა", "Close")} style={{ width: 44, height: 44, margin: -6, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
             <span style={{ width: 32, height: 32, borderRadius: 2, background: c.surface, display: "grid", placeItems: "center" }}>
               <Close size={13} color={c.text2} strokeWidth={2.5} />
             </span>
@@ -744,26 +755,26 @@ function ApplePaySheet({ open, payload, onClose, onDone }) {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: c.text }}>Visa •••• 4242</div>
-                <div style={{ fontSize: 12, color: c.text2, marginTop: 1 }}>ძირითადი ბარათი</div>
+                <div style={{ fontSize: 12, color: c.text2, marginTop: 1 }}>{t("ძირითადი ბარათი", "Default card")}</div>
               </div>
               <ChevronDown size={16} color={c.text3} style={{ transform: "rotate(-90deg)" }} />
             </div>
             <div style={{ marginTop: SP.md }}>
-              <SheetRow label="მიმღები">Avla • {VENUE.name}</SheetRow>
-              <SheetRow label="მაგიდა">{VENUE.table}</SheetRow>
-              {payload && payload.tip > 0 && <SheetRow label="დანამატი">{fmt(payload.tip)} ₾</SheetRow>}
+              <SheetRow label={t("მიმღები", "Recipient")}>Avla • {VENUE.name}</SheetRow>
+              <SheetRow label={t("მაგიდა", "Table")}>{VENUE.table}</SheetRow>
+              {payload && payload.tip > 0 && <SheetRow label={t("დანამატი", "Tip")}>{fmt(payload.tip)} ₾</SheetRow>}
             </div>
             <div style={{ height: 1, background: c.div, margin: `${SP.sm}px 0 ${SP.md}px` }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 13, color: c.text2 }}>ჯამი</span>
+              <span style={{ fontSize: 13, color: c.text2 }}>{t("ჯამი", "Total")}</span>
               <Money value={total} size={22} weight={700} />
             </div>
             <motion.button whileTap={{ scale: 0.97 }} onClick={() => setStep("auth")}
               style={{ width: "100%", height: BTN, marginTop: SP.xl, borderRadius: R.lg, border: "none", cursor: "pointer", background: c.text, color: "#fff", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: SP.sm }}>
-              <FaceId size={20} color="#fff" strokeWidth={1.8} /> დაადასტურეთ Face ID-ით
+              <FaceId size={20} color="#fff" strokeWidth={1.8} /> {t("დაადასტურეთ Face ID-ით", "Confirm with Face ID")}
             </motion.button>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: SP.md, fontSize: 12, color: c.text2 }}>
-              <Lock size={12} /> Apple Pay • უსაფრთხო გადახდა
+              <Lock size={12} /> Apple Pay • {t("უსაფრთხო გადახდა", "Secure payment")}
             </div>
           </motion.div>
         )}
@@ -774,7 +785,7 @@ function ApplePaySheet({ open, payload, onClose, onDone }) {
                 <FaceId size={64} color={c.primary} strokeWidth={1.5} />
               </motion.div>
               <div style={{ fontSize: 15, fontWeight: 600, color: c.text, marginTop: SP.lg }}>Face ID</div>
-              <div style={{ fontSize: 13, color: c.text2, marginTop: SP.xs }}>მიმდინარეობს ამოცნობა…</div>
+              <div style={{ fontSize: 13, color: c.text2, marginTop: SP.xs }}>{t("მიმდინარეობს ამოცნობა…", "Recognizing…")}</div>
             </SheetStatus>
           </motion.div>
         )}
@@ -782,7 +793,7 @@ function ApplePaySheet({ open, payload, onClose, onDone }) {
           <motion.div key="proc" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             <SheetStatus>
               <Spinner />
-              <div style={{ fontSize: 14, color: c.text2, marginTop: SP.lg }}>მუშავდება გადახდა…</div>
+              <div style={{ fontSize: 14, color: c.text2, marginTop: SP.lg }}>{t("მუშავდება გადახდა…", "Processing payment…")}</div>
             </SheetStatus>
           </motion.div>
         )}
@@ -790,7 +801,7 @@ function ApplePaySheet({ open, payload, onClose, onDone }) {
           <motion.div key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             <SheetStatus>
               <DoneMark />
-              <div style={{ ...disp, fontSize: 20, fontWeight: 700, color: c.text, marginTop: SP.lg }}>გადახდილია</div>
+              <div style={{ ...disp, fontSize: 20, fontWeight: 700, color: c.text, marginTop: SP.lg }}>{t("გადახდილია", "Paid")}</div>
               <div style={{ marginTop: SP.xs }}><Money value={total} size={15} weight={600} color={c.text2} /></div>
             </SheetStatus>
           </motion.div>
@@ -829,6 +840,7 @@ function Field({ label, error, children }) {
 }
 
 function CardPreview({ value, holder, exp }) {
+  const { t } = useT();
   const digits = onlyDigits(value);
   const brand = cardBrand(digits);
   const shown = digits.padEnd(16, "•").replace(/(.{4})(?=.)/g, "$1 ");
@@ -843,7 +855,7 @@ function CardPreview({ value, holder, exp }) {
       <span style={{ width: 38, height: 27, borderRadius: 2, background: "linear-gradient(135deg, rgba(255,255,255,0.45), rgba(255,255,255,0.18))" }} />
       <div style={{ ...num, fontSize: 19, fontWeight: 600, letterSpacing: "0.1em", whiteSpace: "nowrap" }}>{shown}</div>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: SP.md }}>
-        <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase", opacity: 0.92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{holder.trim() || "სახელი გვარი"}</span>
+        <span style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase", opacity: 0.92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{holder.trim() || t("სახელი გვარი", "Full name")}</span>
         <span style={{ ...num, fontSize: 12, opacity: 0.92, flexShrink: 0 }}>{exp || "MM/YY"}</span>
       </div>
     </div>
@@ -851,6 +863,7 @@ function CardPreview({ value, holder, exp }) {
 }
 
 function CardSheet({ open, payload, onClose, onDone }) {
+  const { t } = useT();
   const [step, setStep] = useState("form"); // form → processing → done
   const [saved, setSaved] = useState(null);
   const [useSaved, setUseSaved] = useState(false);
@@ -869,10 +882,10 @@ function CardSheet({ open, payload, onClose, onDone }) {
 
   const digits = onlyDigits(number);
   const errors = {
-    number: digits.length === 16 && luhnValid(digits) ? "" : "შეიყვანეთ ბარათის სწორი ნომერი",
-    exp: expiryValid(exp) ? "" : "არასწორი ვადა",
-    cvc: /^\d{3,4}$/.test(cvc) ? "" : "შეიყვანეთ CVC",
-    holder: holder.trim().length >= 3 ? "" : "მფლობელის სახელი და გვარი",
+    number: digits.length === 16 && luhnValid(digits) ? "" : t("შეიყვანეთ ბარათის სწორი ნომერი", "Enter a valid card number"),
+    exp: expiryValid(exp) ? "" : t("არასწორი ვადა", "Invalid date"),
+    cvc: /^\d{3,4}$/.test(cvc) ? "" : t("შეიყვანეთ CVC", "Enter CVC"),
+    holder: holder.trim().length >= 3 ? "" : t("მფლობელის სახელი და გვარი", "Cardholder's full name"),
   };
   const formValid = !errors.number && !errors.exp && !errors.cvc && !errors.holder;
   const canPay = useSaved ? true : formValid;
@@ -902,14 +915,14 @@ function CardSheet({ open, payload, onClose, onDone }) {
   const err = (k) => (touched[k] ? errors[k] : "");
   const inputStyle = { flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", fontSize: 16, color: c.text, fontFamily: SANS };
   return (
-    <Sheet open={open} onClose={closable ? onClose : undefined} label="ბარათით გადახდა">
+    <Sheet open={open} onClose={closable ? onClose : undefined} label={t("ბარათით გადახდა", "Pay by card")}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: SP.md }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: SP.sm, fontSize: 17, fontWeight: 700, color: c.text }}>
           <span style={{ width: 32, height: 32, borderRadius: R.sm, background: c.primarySoft, color: c.primary, display: "grid", placeItems: "center" }}><CardGlyph size={18} /></span>
-          ბარათით გადახდა
+          {t("ბარათით გადახდა", "Pay by card")}
         </span>
         {closable && (
-          <button onClick={onClose} aria-label="დახურვა" style={{ width: 44, height: 44, margin: -6, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
+          <button onClick={onClose} aria-label={t("დახურვა", "Close")} style={{ width: 44, height: 44, margin: -6, background: "none", border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
             <span style={{ width: 32, height: 32, borderRadius: 2, background: c.surface, display: "grid", placeItems: "center" }}>
               <Close size={13} color={c.text2} strokeWidth={2.5} />
             </span>
@@ -926,15 +939,15 @@ function CardSheet({ open, payload, onClose, onDone }) {
                     {useSaved && <Check size={14} color="#fff" strokeWidth={3} />}
                   </span>
                   <span style={{ flex: 1 }}>
-                    <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: c.text }}>{saved.brand} •••• {saved.last4}</span>
-                    <span style={{ display: "block", fontSize: 12, color: c.text2, marginTop: 1 }}>შენახული ბარათი • {saved.exp}</span>
+                    <span style={{ display: "block", fontSize: 14, fontWeight: 600, color: c.text }}>{t(saved.brand, saved.brand === "ბარათი" ? "Card" : saved.brand)} •••• {saved.last4}</span>
+                    <span style={{ display: "block", fontSize: 12, color: c.text2, marginTop: 1 }}>{t("შენახული ბარათი", "Saved card")} • {saved.exp}</span>
                   </span>
                 </button>
                 <button type="button" onClick={() => setUseSaved(false)} aria-pressed={!useSaved} style={{ width: "100%", display: "flex", alignItems: "center", gap: SP.md, padding: SP.md, marginTop: SP.sm, borderRadius: R.md, background: useSaved ? c.surface : c.primarySoft2, border: "none", cursor: "pointer", textAlign: "left", boxShadow: useSaved ? "none" : `inset 0 0 0 1.5px ${c.primary}` }}>
                   <span style={{ width: 24, height: 24, borderRadius: 2, background: useSaved ? "transparent" : c.primary, border: `1.5px solid ${useSaved ? c.text3 : c.primary}`, display: "grid", placeItems: "center", flexShrink: 0 }}>
                     {!useSaved && <Check size={14} color="#fff" strokeWidth={3} />}
                   </span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: c.text }}>სხვა ბარათით გადახდა</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: c.text }}>{t("სხვა ბარათით გადახდა", "Pay with another card")}</span>
                 </button>
               </div>
             )}
@@ -942,13 +955,13 @@ function CardSheet({ open, payload, onClose, onDone }) {
               <>
                 <CardPreview value={number} holder={holder} exp={exp} />
                 <div style={{ marginTop: SP.lg }}>
-                  <Field label="ბარათის ნომერი" error={err("number")}>
+                  <Field label={t("ბარათის ნომერი", "Card number")} error={err("number")}>
                     <input value={number} onChange={(e) => setNumber(formatCardNumber(e.target.value))} onBlur={() => setTouched((t) => ({ ...t, number: true }))}
                       placeholder="0000 0000 0000 0000" inputMode="numeric" autoComplete="cc-number" style={{ ...inputStyle, ...num, letterSpacing: "0.04em" }} />
                     {cardBrand(digits) && <span style={{ fontSize: 12, fontWeight: 700, fontStyle: "italic", color: c.primary, flexShrink: 0 }}>{cardBrand(digits)}</span>}
                   </Field>
                   <div style={{ display: "flex", gap: SP.md }}>
-                    <Field label="მოქმედების ვადა" error={err("exp")}>
+                    <Field label={t("მოქმედების ვადა", "Expiry date")} error={err("exp")}>
                       <input value={exp} onChange={(e) => setExp(formatExpiry(e.target.value))} onBlur={() => setTouched((t) => ({ ...t, exp: true }))}
                         placeholder="MM/YY" inputMode="numeric" autoComplete="cc-exp" style={{ ...inputStyle, ...num }} />
                     </Field>
@@ -958,23 +971,23 @@ function CardSheet({ open, payload, onClose, onDone }) {
                       <Lock size={14} color={c.text3} />
                     </Field>
                   </div>
-                  <Field label="ბარათის მფლობელი" error={err("holder")}>
-                    <input value={holder} onChange={(e) => setHolder(e.target.value)} onBlur={() => setTouched((t) => ({ ...t, holder: true }))}
-                      placeholder="სახელი გვარი" autoComplete="cc-name" style={inputStyle} />
+                  <Field label={t("ბარათის მფლობელი", "Cardholder")} error={err("holder")}>
+                    <input value={holder} onChange={(e) => setHolder(e.target.value)} onBlur={() => setTouched((tt) => ({ ...tt, holder: true }))}
+                      placeholder={t("სახელი გვარი", "Full name")} autoComplete="cc-name" style={inputStyle} />
                   </Field>
                 </div>
                 <div style={{ padding: SP.md, borderRadius: R.md, background: c.surface }}>
-                  <Toggle on={save} onChange={setSave} label="ბარათის დამახსოვრება" sub="შემდეგ ჯერზე გადაიხდით ერთი შეხებით" />
+                  <Toggle on={save} onChange={setSave} label={t("ბარათის დამახსოვრება", "Save card")} sub={t("შემდეგ ჯერზე გადაიხდით ერთი შეხებით", "Next time pay with one tap")} />
                 </div>
               </>
             )}
             <motion.button whileTap={{ scale: 0.97 }} onClick={submit}
               style={{ width: "100%", height: BTN, marginTop: SP.lg, padding: `0 ${SP.xl}px`, borderRadius: R.lg, border: "none", cursor: canPay ? "pointer" : "not-allowed", background: c.primary, opacity: canPay ? 1 : 0.55, color: "#fff", fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: SP.md, transition: "opacity .2s" }}>
-              <span>გადახდა</span>
+              <span>{t("გადახდა", "Pay")}</span>
               <Money value={total} color="#fff" weight={600} style={{ marginLeft: "auto", fontSize: 15 }} />
             </motion.button>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: SP.md, fontSize: 12, color: c.text2 }}>
-              <Lock size={12} /> მონაცემები გადაიცემა დაშიფრულად
+              <Lock size={12} /> {t("მონაცემები გადაიცემა დაშიფრულად", "Data is transmitted encrypted")}
             </div>
           </motion.div>
         )}
@@ -982,8 +995,8 @@ function CardSheet({ open, payload, onClose, onDone }) {
           <motion.div key="proc" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             <SheetStatus>
               <Spinner />
-              <div style={{ fontSize: 14, color: c.text2, marginTop: SP.lg }}>მუშავდება გადახდა…</div>
-              <div style={{ fontSize: 12, color: c.text2, marginTop: SP.xs }}>არ დახუროთ გვერდი</div>
+              <div style={{ fontSize: 14, color: c.text2, marginTop: SP.lg }}>{t("მუშავდება გადახდა…", "Processing payment…")}</div>
+              <div style={{ fontSize: 12, color: c.text2, marginTop: SP.xs }}>{t("არ დახუროთ გვერდი", "Don't close the page")}</div>
             </SheetStatus>
           </motion.div>
         )}
@@ -991,7 +1004,7 @@ function CardSheet({ open, payload, onClose, onDone }) {
           <motion.div key="done" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             <SheetStatus>
               <DoneMark />
-              <div style={{ ...disp, fontSize: 20, fontWeight: 700, color: c.text, marginTop: SP.lg }}>გადახდილია</div>
+              <div style={{ ...disp, fontSize: 20, fontWeight: 700, color: c.text, marginTop: SP.lg }}>{t("გადახდილია", "Paid")}</div>
               <div style={{ marginTop: SP.xs }}><Money value={total} size={15} weight={600} color={c.text2} /></div>
             </SheetStatus>
           </motion.div>
@@ -1002,6 +1015,7 @@ function CardSheet({ open, payload, onClose, onDone }) {
 }
 
 function PaySuccess({ result }) {
+  const { t } = useT();
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [sent, setSent] = useState(false);
@@ -1014,16 +1028,16 @@ function PaySuccess({ result }) {
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.05 }} style={{ width: 78, height: 78, borderRadius: 2, background: c.success, boxShadow: "0 12px 30px -10px rgba(31,168,31,0.5)", display: "grid", placeItems: "center" }}>
             <Check size={40} color="#FFFFFF" strokeWidth={3} />
           </motion.div>
-          <h2 style={{ ...disp, fontSize: 28, fontWeight: 700, color: c.text, marginTop: SP.lg }}>გადახდილია</h2>
-          <p style={{ fontSize: 14, color: c.text2, marginTop: SP.xs }}>მადლობა, რომ მოგვინახულეთ</p>
+          <h2 style={{ ...disp, fontSize: 28, fontWeight: 700, color: c.text, marginTop: SP.lg }}>{t("გადახდილია", "Paid")}</h2>
+          <p style={{ fontSize: 14, color: c.text2, marginTop: SP.xs }}>{t("მადლობა, რომ მოგვინახულეთ", "Thank you for visiting")}</p>
           <div style={{ marginTop: SP.md }}><Amount value={result.total} size={36} weight={700} /></div>
         </div>
 
         <div style={{ textAlign: "center", marginTop: SP.xl }}>
-          <div style={{ fontSize: 14, color: c.text2 }}>როგორ შეგვაფასებთ?</div>
+          <div style={{ fontSize: 14, color: c.text2 }}>{t("როგორ შეგვაფასებთ?", "How would you rate us?")}</div>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: SP.sm, marginTop: SP.md }}>
             {[1, 2, 3, 4, 5].map((n) => (
-              <motion.button key={n} whileTap={{ scale: 0.8 }} onClick={() => !sent && setRating(n)} aria-label={`${n} ვარსკვლავი`} aria-pressed={n <= rating} disabled={sent}
+              <motion.button key={n} whileTap={{ scale: 0.8 }} onClick={() => !sent && setRating(n)} aria-label={`${n} ${t("ვარსკვლავი", "star")}`} aria-pressed={n <= rating} disabled={sent}
                 style={{ width: 44, height: 44, display: "grid", placeItems: "center", background: "none", border: "none", cursor: sent ? "default" : "pointer", color: n <= rating ? COL.orange : c.text3 }}>
                 <Star size={32} fill={n <= rating ? COL.orange : "none"} strokeWidth={1.5} />
               </motion.button>
@@ -1033,14 +1047,14 @@ function PaySuccess({ result }) {
             {!sent && rating > 0 && (
               <motion.div key="review-box" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} style={{ overflow: "hidden" }}>
                 <div style={{ marginTop: SP.md, borderRadius: R.lg, background: c.bg, boxShadow: CARD, padding: SP.md, textAlign: "left" }}>
-                  <textarea value={review} onChange={(e) => setReview(e.target.value.slice(0, 300))} rows={3} maxLength={300} aria-label="შეფასების ტექსტი"
-                    placeholder="გაგვიზიარეთ შთაბეჭდილება — კერძები, მომსახურება, ატმოსფერო…"
+                  <textarea value={review} onChange={(e) => setReview(e.target.value.slice(0, 300))} rows={3} maxLength={300} aria-label={t("შეფასების ტექსტი", "Review text")}
+                    placeholder={t("გაგვიზიარეთ შთაბეჭდილება — კერძები, მომსახურება, ატმოსფერო…", "Share your impression — food, service, atmosphere…")}
                     style={{ width: "100%", border: "none", outline: "none", resize: "none", background: "transparent", fontSize: 16, lineHeight: 1.5, color: c.text, fontFamily: SANS }} />
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: SP.sm }}>
                     <span style={{ ...num, fontSize: 11, color: c.text2 }}>{review.length}/300</span>
                     <motion.button whileTap={{ scale: 0.96 }} onClick={() => setSent(true)}
                       style={{ height: 44, padding: `0 ${SP.lg}px`, borderRadius: 2, background: c.primary, color: "#fff", fontSize: 13, fontWeight: 600, border: "none", cursor: "pointer" }}>
-                      შეფასების გაგზავნა
+                      {t("შეფასების გაგზავნა", "Send review")}
                     </motion.button>
                   </div>
                 </div>
@@ -1049,27 +1063,27 @@ function PaySuccess({ result }) {
             {sent && (
               <motion.div key="review-sent" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25 }}
                 style={{ display: "inline-flex", alignItems: "center", gap: SP.sm, marginTop: SP.md, padding: `10px ${SP.lg}px`, borderRadius: 2, background: "rgba(31,168,31,0.10)", color: c.success, fontSize: 13, fontWeight: 600 }}>
-                <Check size={15} strokeWidth={2.5} /> მადლობა გამოხმაურებისთვის!
+                <Check size={15} strokeWidth={2.5} /> {t("მადლობა გამოხმაურებისთვის!", "Thanks for your feedback!")}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        <div style={{ marginTop: SP.xl }}><GameCard subtitle="ერთი პარტია ავლა-მორბენალი, სანამ ემზადებით" /></div>
+        <div style={{ marginTop: SP.xl }}><GameCard subtitle={t("ერთი პარტია ავლა-მორბენალი, სანამ ემზადებით", "A round of Avla Runner while you wait")} /></div>
         <div style={{ marginTop: SP.xl }}><Receipt result={result} /></div>
         <div style={{ textAlign: "center", marginTop: SP.lg, fontSize: 13, color: c.text2 }}>
-          {result.receipt ? `ქვითარი გაიგზავნა: ${result.receipt}` : "ქვითარი ხელმისაწვდომია ზემოთ"}
+          {result.receipt ? `${t("ქვითარი გაიგზავნა:", "Receipt sent:")} ${result.receipt}` : t("ქვითარი ხელმისაწვდომია ზემოთ", "Receipt available above")}
         </div>
         {result.cardSaved && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: SP.sm, fontSize: 13, color: c.text2 }}>
-            <Check size={14} color={c.success} strokeWidth={2.5} /> ბარათი დამახსოვრებულია შემდეგი ვიზიტისთვის
+            <Check size={14} color={c.success} strokeWidth={2.5} /> {t("ბარათი დამახსოვრებულია შემდეგი ვიზიტისთვის", "Card saved for your next visit")}
           </div>
         )}
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: SP.xl, gap: 6, opacity: 0.65 }}>
-          <span style={{ fontSize: 12, color: c.text2 }}>გთავაზობთ</span><Logo h={16} />
+          <span style={{ fontSize: 12, color: c.text2 }}>{t("გთავაზობთ", "Powered by")}</span><Logo h={16} />
         </div>
-        <p style={{ fontSize: 13, color: c.text2, marginTop: SP.lg, textAlign: "center" }}>მაგიდა {VENUE.table}, შეგიძლიათ დატოვოთ მაგიდა</p>
+        <p style={{ fontSize: 13, color: c.text2, marginTop: SP.lg, textAlign: "center" }}>{t("მაგიდა", "Table")} {VENUE.table}, {t("შეგიძლიათ დატოვოთ მაგიდა", "you may leave the table")}</p>
       </div>
     </motion.div>
   );

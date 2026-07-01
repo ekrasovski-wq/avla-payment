@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createGame, resize, tick, tryJump, totalScore, GROUND_H, CW, CH, CHAR_X } from "./game-core";
+import { useT } from "./i18n";
 
 /* ============================================================
    AVLA RUNNER — one-tap endless runner (Mario/Dino style).
@@ -153,6 +154,7 @@ function drawAvla(ctx, g, gy) {
 }
 
 function GameOverlay({ onClose }) {
+  const { t } = useT();
   const canvasRef = useRef(null);
   const G = useRef(null);
   const dims = useRef({ W: 0, H: 0 });
@@ -303,7 +305,7 @@ function GameOverlay({ onClose }) {
     >
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
 
-      <button onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="დახურვა"
+      <button onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label={t("დახურვა", "Close")}
         style={{ position: "absolute", top: "max(14px, env(safe-area-inset-top))", right: 14, zIndex: 62, width: 40, height: 40, borderRadius: 2, background: "rgba(255,255,255,0.12)", border: "none", display: "grid", placeItems: "center", cursor: "pointer", backdropFilter: "blur(6px)" }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="square"><path d="M6 6 L18 18" /><path d="M18 6 L6 18" /></svg>
       </button>
@@ -315,22 +317,22 @@ function GameOverlay({ onClose }) {
             <MascotSvg size={78} />
             {phase === "ready" ? (
               <>
-                <div style={{ fontFamily: DISP, fontSize: 27, fontWeight: 700, marginTop: SP.lg }}>ავლა-მორბენალი</div>
+                <div style={{ fontFamily: DISP, fontSize: 27, fontWeight: 700, marginTop: SP.lg }}>{t("ავლა-მორბენალი", "Avla Runner")}</div>
                 <div style={{ fontSize: 14, color: "rgba(255,255,255,0.72)", marginTop: SP.sm, maxWidth: 270, lineHeight: 1.55 }}>
-                  შეეხე ეკრანს, რომ ახტე დაბრკოლებებზე და შეაგროვო ₾.
+                  {t("შეეხე ეკრანს, რომ ახტე დაბრკოლებებზე და შეაგროვო ₾.", "Tap to jump obstacles and collect ₾.")}
                 </div>
-                {res.best > 0 && <div style={{ fontFamily: DISP, fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: SP.md }}>რეკორდი {res.best}</div>}
-                <div style={{ marginTop: SP.xl, padding: "13px 24px", borderRadius: 2, background: PURPLE, fontSize: 15, fontWeight: 600 }}>დაწყება ▸</div>
+                {res.best > 0 && <div style={{ fontFamily: DISP, fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: SP.md }}>{t("რეკორდი", "Best")} {res.best}</div>}
+                <div style={{ marginTop: SP.xl, padding: "13px 24px", borderRadius: 2, background: PURPLE, fontSize: 15, fontWeight: 600 }}>{t("დაწყება", "Start")} ▸</div>
               </>
             ) : (
               <>
-                <div style={{ fontFamily: DISP, fontSize: 24, fontWeight: 700, marginTop: SP.lg }}>თამაში დასრულდა</div>
+                <div style={{ fontFamily: DISP, fontSize: 24, fontWeight: 700, marginTop: SP.lg }}>{t("თამაში დასრულდა", "Game over")}</div>
                 <div style={{ fontFamily: DISP, fontSize: 54, fontWeight: 700, marginTop: SP.sm, lineHeight: 1 }}>{res.score}</div>
                 <div style={{ fontFamily: DISP, fontSize: 13, color: res.score >= res.best ? GREEN : "rgba(255,255,255,0.55)", marginTop: SP.sm }}>
-                  {res.score >= res.best ? "ახალი რეკორდი!" : `რეკორდი ${res.best}`}
+                  {res.score >= res.best ? t("ახალი რეკორდი!", "New record!") : `${t("რეკორდი", "Best")} ${res.best}`}
                   {res.coins > 0 ? `  ·  ₾ ${res.coins}` : ""}
                 </div>
-                <div style={{ marginTop: SP.xl, padding: "13px 24px", borderRadius: 2, background: PURPLE, fontSize: 15, fontWeight: 600 }}>თავიდან ▸</div>
+                <div style={{ marginTop: SP.xl, padding: "13px 24px", borderRadius: 2, background: PURPLE, fontSize: 15, fontWeight: 600 }}>{t("თავიდან", "Again")} ▸</div>
               </>
             )}
           </motion.div>
@@ -358,7 +360,9 @@ export function MascotSvg({ size = 64 }) {
 }
 
 /* embeddable launcher — drop into any success screen */
-export function GameCard({ subtitle = "ითამაშეთ ავლა-მორბენალი, სანამ შეკვეთა მზადდება" }) {
+const DEFAULT_SUBTITLE = "ითამაშეთ ავლა-მორბენალი, სანამ შეკვეთა მზადდება";
+export function GameCard({ subtitle = DEFAULT_SUBTITLE }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -366,8 +370,8 @@ export function GameCard({ subtitle = "ითამაშეთ ავლა-მ
         style={{ width: "100%", display: "flex", alignItems: "center", gap: SP.md, padding: SP.lg, borderRadius: 2, border: "none", cursor: "pointer", textAlign: "left", background: "linear-gradient(100deg, #1A1A1A, #2A2350)", color: "#fff", boxShadow: "0 12px 30px -16px rgba(115,78,249,0.6)", overflow: "hidden", position: "relative" }}>
         <MascotSvg size={44} />
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 15, fontWeight: 600 }}>მოგწყინდათ ლოდინი?</span>
-          <span style={{ display: "block", fontSize: 12.5, color: "rgba(255,255,255,0.66)", marginTop: 2 }}>{subtitle}</span>
+          <span style={{ display: "block", fontSize: 15, fontWeight: 600 }}>{t("მოგწყინდათ ლოდინი?", "Bored of waiting?")}</span>
+          <span style={{ display: "block", fontSize: 12.5, color: "rgba(255,255,255,0.66)", marginTop: 2 }}>{subtitle === DEFAULT_SUBTITLE ? t(DEFAULT_SUBTITLE, "Play Avla Runner while your order is prepared") : subtitle}</span>
         </span>
         <span style={{ flexShrink: 0, width: 38, height: 38, borderRadius: 2, background: PURPLE, display: "grid", placeItems: "center" }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M7 4 L20 12 L7 20 Z" /></svg>
