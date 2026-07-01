@@ -53,15 +53,7 @@ const OPEN_BILL = [
   { id: "ob4", name: "სეზონური სალათი", name_en: "Seasonal Salad", qty: 1, total: 11.0 },
   { id: "ob5", name: "საფერავი", name_en: "Saperavi", qty: 2, total: 24.0 },
 ];
-// "Popular with your order" upsell — dessert + drinks (each has a photo in public/images)
-const ADDONS = [
-  { id: "d17", name: "ნაყინი პელამუშით", name_en: "Ice cream & pelamushi", price: 7.0 },
-  { id: "d16", name: "ჩურჩხელა", name_en: "Churchkhela", price: 4.0 },
-  { id: "d18", name: "საფერავი, ჭიქა", name_en: "Saperavi, glass", price: 12.0 },
-  { id: "d19", name: "ტარხუნის ლიმონათი", name_en: "Tarragon lemonade", price: 5.0 },
-  { id: "d20", name: "ბორჯომი", name_en: "Borjomi water", price: 3.5 },
-];
-// Promo codes: pct = fraction off the food+add-ons base; flat = fixed ₾ off.
+// Promo codes: pct = fraction off the food subtotal; flat = fixed ₾ off.
 const PROMO_CODES = {
   AVLA10: { kind: "pct", amount: 0.1 },
   SUFRA20: { kind: "pct", amount: 0.2 },
@@ -262,7 +254,6 @@ function ActiveBill({ bill, onPay }) {
   const [mode, setMode] = useState("full");
   const [guests, setGuests] = useState(2);
   const [picked, setPicked] = useState(() => new Set());
-  const [extras, setExtras] = useState(() => new Map()); // add-on id -> qty
   const [promo, setPromo] = useState({ input: "", code: null, kind: null, amount: 0, error: false });
   const [tip, setTip] = useState({ mode: "pct", pct: 0.1, custom: "" });
   const [method, setMethod] = useState("apple");
@@ -270,14 +261,9 @@ function ActiveBill({ bill, onPay }) {
 
   const pickedSum = bill.filter((l) => picked.has(l.id)).reduce((s, l) => s + l.total, 0);
   const shareSub = r2(mode === "full" ? subtotal : mode === "equal" ? subtotal / guests : pickedSum);
-  const extrasList = ADDONS.filter((a) => (extras.get(a.id) || 0) > 0).map((a) => ({ ...a, qty: extras.get(a.id), total: r2(a.price * extras.get(a.id)) }));
-  const extrasSum = r2(extrasList.reduce((s, a) => s + a.total, 0));
-  const tipBase = r2(shareSub + extrasSum);
-  const discount = promo.code ? r2(promo.kind === "pct" ? tipBase * promo.amount : Math.min(promo.amount, tipBase)) : 0;
-  const tipAmt = r2(tip.mode === "custom" ? Number(tip.custom) || 0 : tipBase * tip.pct);
-  const payTotal = r2(Math.max(0, tipBase - discount + tipAmt));
-  const addExtra = (id) => setExtras((m) => { const n = new Map(m); n.set(id, (n.get(id) || 0) + 1); return n; });
-  const decExtra = (id) => setExtras((m) => { const n = new Map(m); const q = (n.get(id) || 0) - 1; if (q <= 0) n.delete(id); else n.set(id, q); return n; });
+  const discount = promo.code ? r2(promo.kind === "pct" ? shareSub * promo.amount : Math.min(promo.amount, shareSub)) : 0;
+  const tipAmt = r2(tip.mode === "custom" ? Number(tip.custom) || 0 : shareSub * tip.pct);
+  const payTotal = r2(Math.max(0, shareSub - discount + tipAmt));
   const applyPromo = () => { const code = promo.input.trim().toUpperCase(); const f = PROMO_CODES[code]; if (f) setPromo((p) => ({ ...p, code, kind: f.kind, amount: f.amount, error: false })); else setPromo((p) => ({ ...p, code: null, kind: null, amount: 0, error: true })); };
   const clearPromo = () => setPromo({ input: "", code: null, kind: null, amount: 0, error: false });
   const blocked = mode === "item" && picked.size === 0;
@@ -325,57 +311,13 @@ function ActiveBill({ bill, onPay }) {
           </div>
         </div>
 
-        {/* POPULAR WITH YOUR ORDER — upsell */}
-        <div style={{ marginTop: SP.xl }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: c.text2, marginBottom: SP.sm }}>{t("პოპულარული თქვენს შეკვეთასთან", "Popular with your order")}</div>
-          <div style={{ display: "flex", gap: SP.sm, overflowX: "auto", scrollSnapType: "x proximity", margin: `0 -${PAD}px`, padding: `4px ${PAD}px` }} className="no-scrollbar">
-            {ADDONS.map((a) => {
-              const qty = extras.get(a.id) || 0;
-              return (
-                <div key={a.id} style={{ flexShrink: 0, width: 132, borderRadius: R.md, background: c.bg, boxShadow: CARD, overflow: "hidden", scrollSnapAlign: "start" }}>
-                  <div style={{ width: "100%", aspectRatio: "1 / 1", background: c.primarySoft, position: "relative" }}>
-                    <img src={`/images/${a.id}.jpg`} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                    {qty > 0 && (
-                      <div style={{ position: "absolute", top: 6, left: 6, minWidth: 20, height: 20, padding: "0 5px", borderRadius: 2, background: c.primary, color: "#fff", ...num, fontSize: 12, fontWeight: 700, display: "grid", placeItems: "center" }}>{qty}</div>
-                    )}
-                  </div>
-                  <div style={{ padding: SP.sm }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: c.text, lineHeight: 1.25, height: 30, overflow: "hidden" }}>{t(a.name, a.name_en)}</div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
-                      <Money value={a.price} size={13} weight={700} />
-                      {qty === 0 ? (
-                        <motion.button whileTap={{ scale: 0.9 }} onClick={() => addExtra(a.id)} aria-label={`${t("დამატება", "Add")} ${t(a.name, a.name_en)}`}
-                          style={{ width: 30, height: 30, borderRadius: 2, background: c.primary, border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0 }}>
-                          <Plus size={16} color="#fff" strokeWidth={2.5} />
-                        </motion.button>
-                      ) : (
-                        <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                          <motion.button whileTap={{ scale: 0.9 }} onClick={() => decExtra(a.id)} aria-label={t("შემცირება", "Decrease")}
-                            style={{ width: 26, height: 26, borderRadius: 2, background: c.primarySoft, border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
-                            <Minus size={14} color={c.primary} strokeWidth={2.5} />
-                          </motion.button>
-                          <motion.button whileTap={{ scale: 0.9 }} onClick={() => addExtra(a.id)} aria-label={t("დამატება", "Add")}
-                            style={{ width: 26, height: 26, borderRadius: 2, background: c.primary, border: "none", display: "grid", placeItems: "center", cursor: "pointer" }}>
-                            <Plus size={14} color="#fff" strokeWidth={2.5} />
-                          </motion.button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* YOU PAY */}
         <div style={{ marginTop: SP.xl }}>
           <div style={{ fontSize: 13, fontWeight: 500, color: c.text2 }}>{t("თქვენ იხდით", "You pay")}</div>
           <div style={{ marginTop: 4 }}><Amount value={payTotal} size={48} weight={700} /></div>
-          {(extrasSum > 0 || tipAmt > 0 || discount > 0) && (
+          {(tipAmt > 0 || discount > 0) && (
             <div style={{ marginTop: SP.sm, fontSize: 12, color: c.text2, display: "flex", flexWrap: "wrap", gap: `2px ${SP.md}px` }}>
               <span>{checklist ? t("მონიშნული", "Selected") : mode === "equal" ? t("თქვენი წილი", "Your share") : t("კერძები", "Food")} {fmt(shareSub)} ₾</span>
-              {extrasSum > 0 && <span>+ {t("დამატებული", "Add-ons")} {fmt(extrasSum)} ₾</span>}
               {discount > 0 && <span style={{ color: c.success }}>− {t("ფასდაკლება", "Discount")} {fmt(discount)} ₾</span>}
               {tipAmt > 0 && <span>+ {t("დანამატი", "Tip")} {fmt(tipAmt)} ₾</span>}
             </div>
@@ -483,7 +425,7 @@ function ActiveBill({ bill, onPay }) {
           ) : (
             <SlideButton
               disabled={blocked}
-              onComplete={() => onPay({ total: payTotal, share: shareSub, extras: extrasList, extrasSum, discount, promo: promo.code, tip: tipAmt, method, mode, guests, picked: [...picked], receipt: receipt.trim() })}
+              onComplete={() => onPay({ total: payTotal, share: shareSub, discount, promo: promo.code, tip: tipAmt, method, mode, guests, picked: [...picked], receipt: receipt.trim() })}
               payLabel={payLabel}
               amount={payTotal}
             />
@@ -520,14 +462,11 @@ function Receipt({ result }) {
   const note = result.mode === "equal" ? `${t("გაყოფილია", "Split into")} ${result.guests} ${t("ნაწილად", "parts")}` : result.mode === "item" ? t("გადახდილია არჩეული კერძები", "Selected dishes paid") : null;
   const lines = result.mode === "item" ? OPEN_BILL.filter((l) => result.picked.includes(l.id)) : OPEN_BILL;
 
-  const extras = result.extras || [];
   const receiptItems = [
     { type: "header", label: VENUE.name, subLabel: `${t("მაგიდა", "Table")} ${VENUE.table}` },
     ...lines.map((l) => ({ type: "line", qty: l.qty, name: t(l.name, l.name_en), total: l.total })),
-    ...extras.map((a) => ({ type: "line", qty: a.qty, name: t(a.name, a.name_en), total: a.total })),
     { type: "divider" },
     { type: "row", label: result.mode === "full" ? t("ჯამი", "Subtotal") : t("თქვენი წილი", "Your share"), value: result.share },
-    ...(result.extrasSum > 0 ? [{ type: "row", label: t("დამატებული", "Add-ons"), value: result.extrasSum }] : []),
     ...(result.discount > 0 ? [{ type: "row", label: `${t("ფასდაკლება", "Discount")}${result.promo ? ` · ${result.promo}` : ""}`, value: result.discount, neg: true }] : []),
     { type: "row", label: t("დანამატი", "Tip"), value: result.tip },
     { type: "total", label: methodLabel, value: result.total },
