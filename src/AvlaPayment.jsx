@@ -48,7 +48,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 const VENUE = { name: "სუფრა", table: 14 };
 const OPEN_BILL = [
   { id: "ob1", name: "აჭარული ხაჭაპური", name_en: "Adjarian Khachapuri", qty: 1, total: 16.0 },
-  { id: "ob2", name: "ხინკალი კალმახით", name_en: "Trout Khinkali", qty: 7, total: 12.6 },
+  { id: "ob2", name: "ქალაქური ხინკალი", name_en: "Kalakuri Khinkali", qty: 7, total: 12.6 },
   { id: "ob3", name: "ღორის მწვადი", name_en: "Pork Mtsvadi", qty: 2, total: 48.0 },
   { id: "ob4", name: "სეზონური სალათი", name_en: "Seasonal Salad", qty: 1, total: 11.0 },
   { id: "ob5", name: "საფერავი", name_en: "Saperavi", qty: 2, total: 24.0 },
