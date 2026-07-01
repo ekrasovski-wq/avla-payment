@@ -161,7 +161,7 @@ function Shell({ children }) {
   }, []);
   return (
     <div style={{ width: "100%", minHeight: "100dvh", display: "grid", placeItems: "center", background: "rgba(26,26,26,0.05)", fontFamily: SANS, color: c.text }}>
-      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}*{-webkit-tap-highlight-color:transparent}::selection{background:${c.primarySoft}}@keyframes avUp{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes avFade{from{opacity:0}to{opacity:1}}`}</style>
+      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}*{-webkit-tap-highlight-color:transparent}::selection{background:${c.primarySoft}}@keyframes avUp{from{transform:translateY(100%)}to{transform:translateY(0)}}@keyframes avFade{from{opacity:0}to{opacity:1}}@keyframes avSpin{to{transform:rotate(360deg)}}`}</style>
       <div style={{ position: "relative", width: "100%", maxWidth: "420px", height: "100dvh", background: c.surface, overflow: "hidden", boxShadow: "0 0 0 1px rgba(0,0,0,0.06)" }}>
         {children}
       </div>
@@ -170,127 +170,27 @@ function Shell({ children }) {
 }
 
 function SlideButton({ onComplete, disabled, payLabel, amount }) {
-  const x = useMotionValue(0);
-  const [completed, setCompleted] = useState(false);
-  const [status, setStatus] = useState("idle"); // idle, loading, success
-
-  const handleDragEnd = (event, info) => {
-    if (disabled || completed) return;
-    const progress = info.offset.x / 100;
-    if (progress > 0.9) {
-      setCompleted(true);
-      setStatus("loading");
-      setTimeout(() => {
-        setStatus("success");
-        setTimeout(() => {
-          onComplete();
-        }, 600);
-      }, 800);
-    } else {
-      animate(x, 0, { type: "spring", stiffness: 400, damping: 40 });
-    }
+  // A plain tap-to-pay button. No drag, no rAF-gated completion chain — a
+  // click reliably fires onComplete (via a short timeout) on every device.
+  const [loading, setLoading] = useState(false);
+  const go = () => {
+    if (disabled || loading) return;
+    setLoading(true);
+    setTimeout(() => onComplete(), 420);
   };
-
   return (
-    <motion.div
-      style={{
-        width: "100%",
-        height: BTN,
-        borderRadius: R.lg,
-        background: completed ? c.success : c.primary,
-        position: "relative",
-        cursor: disabled || completed ? "default" : "grab",
-        overflow: "hidden",
-      }}
-      animate={{
-        opacity: disabled ? 0.55 : 1,
-        boxShadow: completed ? "0 8px 20px rgba(31,168,31,0.3)" : "0 8px 22px -8px rgba(26,26,26,0.4)",
-      }}
-      transition={{ duration: 0.3 }}>
-
-      {!completed && (
+    <motion.button whileTap={disabled || loading ? {} : { scale: 0.985 }} onClick={go} disabled={disabled} aria-busy={loading}
+      style={{ width: "100%", height: BTN, padding: `0 ${SP.lg}px`, borderRadius: R.lg, border: "none", background: c.primary, color: "#fff", fontSize: 15, fontWeight: 600, cursor: disabled ? "default" : "pointer", opacity: disabled ? 0.55 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: SP.sm, boxShadow: "0 8px 22px -8px rgba(26,26,26,0.4)", transition: "opacity .2s" }}>
+      {loading ? (
+        <span style={{ width: 22, height: 22, borderRadius: "50%", border: "2.5px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", display: "block", animation: "avSpin 0.8s linear infinite" }} />
+      ) : (
         <>
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: SP.sm,
-            padding: `0 ${SP.lg}px 0 ${BTN + SP.sm}px`,
-            color: "#fff",
-            fontWeight: 600,
-            fontSize: 15,
-            pointerEvents: "none",
-          }}>
-            <span style={{ whiteSpace: "nowrap" }}>{payLabel}</span>
-            <Amount value={amount} color="#fff" style={{ fontSize: 15, whiteSpace: "nowrap" }} />
-          </div>
-
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: 0, right: 100 }}
-            dragElastic={0.05}
-            dragMomentum={false}
-            onDragEnd={handleDragEnd}
-            style={{
-              x,
-              position: "absolute",
-              left: 4,
-              top: 0,
-              bottom: 0,
-              display: "flex",
-              alignItems: "center",
-              cursor: disabled ? "default" : "grab",
-            }}
-            whileTap={!disabled && !completed ? { scale: 1.05 } : {}}
-          >
-            <motion.div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: R.md,
-                background: "rgba(255,255,255,0.25)",
-                display: "grid",
-                placeItems: "center",
-                backdropFilter: "blur(8px)",
-              }}>
-              <ChevronRight size={20} color="#fff" strokeWidth={2.5} />
-            </motion.div>
-          </motion.div>
+          <Lock size={16} color="#fff" strokeWidth={2} />
+          <span style={{ whiteSpace: "nowrap" }}>{payLabel}</span>
+          <Amount value={amount} color="#fff" weight={600} style={{ marginLeft: "auto", fontSize: 15, whiteSpace: "nowrap" }} />
         </>
       )}
-
-      {completed && (
-        <motion.div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "grid",
-            placeItems: "center",
-            width: "100%",
-            height: "100%",
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}>
-          <AnimatePresence mode="wait">
-            {status === "loading" && (
-              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  style={{ width: 24, height: 24, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff" }} />
-              </motion.div>
-            )}
-            {status === "success" && (
-              <motion.div key="success" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: "spring", stiffness: 400, damping: 30 }}>
-                <Check size={28} color="#fff" strokeWidth={3} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      )}
-    </motion.div>
+    </motion.button>
   );
 }
 
@@ -512,10 +412,10 @@ function Receipt({ result }) {
   const lines = result.mode === "item" ? OPEN_BILL.filter((l) => result.picked.includes(l.id)) : OPEN_BILL;
 
   const receiptItems = [
-    { type: "header", label: VENUE.name, subLabel: `${t("მაგიდა", "Table")} ${result.guests}` },
+    { type: "header", label: VENUE.name, subLabel: `${t("მაგიდა", "Table")} ${VENUE.table}` },
     ...lines.map((l) => ({ type: "line", qty: l.qty, name: t(l.name, l.name_en), total: l.total })),
     { type: "divider" },
-    { type: "row", label: t("თქვენი წილი", "Your share"), value: result.share },
+    { type: "row", label: result.mode === "full" ? t("ჯამი", "Subtotal") : t("თქვენი წილი", "Your share"), value: result.share },
     { type: "row", label: t("დანამატი", "Tip"), value: result.tip },
     { type: "total", label: methodLabel, value: result.total },
     ...(note ? [{ type: "note", text: note }] : [])
