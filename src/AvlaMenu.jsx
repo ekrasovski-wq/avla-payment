@@ -237,7 +237,7 @@ function MenuScreen({ cart, add, inc, dec, onOpenDish, count, subtotal, onChecko
   };
 
   return (
-    <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+    <motion.div key="menu"
       style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
       <MenuHeader count={count} />
       <div ref={scrollRef} onScroll={onScroll} className="no-scrollbar" style={{ flex: 1, overflowY: "auto", paddingBottom: count > 0 ? 132 : 32 }}>
@@ -291,7 +291,7 @@ function ReviewScreen({ items, inc, dec, subtotal, onBack, onPay }) {
   const payLabel = method === "apple" ? "Apple Pay" : method === "google" ? "Google Pay" : "ბარათით გადახდა";
 
   return (
-    <motion.div key="review" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 24 }} transition={{ duration: 0.22 }}
+    <motion.div key="review"
       style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
       <div style={{ position: "sticky", top: 0, zIndex: 30, background: "rgba(245,244,250,0.82)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", paddingTop: "max(16px, env(safe-area-inset-top))" }}>
         <div style={{ display: "flex", alignItems: "center", gap: SP.sm, minHeight: 56, padding: `0 ${PAD}px`, paddingBottom: SP.md }}>
@@ -433,7 +433,7 @@ function OrderSuccess({ result }) {
   const [rating, setRating] = useState(0);
   const [sent, setSent] = useState(false);
   return (
-    <motion.div key="success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
+    <motion.div key="success"
       style={{ position: "relative", height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
       <Confetti />
       <div style={{ display: "grid", placeItems: "center", paddingTop: "max(16px, env(safe-area-inset-top))", paddingBottom: SP.sm }}><Logo h={24} /></div>
@@ -520,7 +520,7 @@ export default function AvlaMenu() {
   return (
     <Shell>
       <AnimatePresence mode="wait">
-        {screen === "splash" && <motion.div key="s" style={{ height: "100%" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}><Splash /></motion.div>}
+        {screen === "splash" && <motion.div key="s" style={{ height: "100%" }}><Splash /></motion.div>}
         {screen === "menu" && (
           <MenuScreen key="m" cart={cart} add={add} inc={inc} dec={dec} count={count} subtotal={subtotal}
             onOpenDish={setOpenDish} onCheckout={() => setScreen("review")} />

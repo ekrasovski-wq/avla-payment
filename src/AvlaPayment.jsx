@@ -353,7 +353,7 @@ function ActiveBill({ bill, onPay }) {
   const payLabel = method === "apple" ? "Apple Pay" : method === "google" ? "Google Pay" : "ბარათით გადახდა";
 
   return (
-    <motion.div key="bill" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
+    <motion.div key="bill" style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
       <BillHeader />
       <div style={{ flex: 1, overflowY: "auto", padding: `${SP.md}px ${PAD}px`, paddingBottom: 140 }} className="no-scrollbar">
 
@@ -1006,7 +1006,7 @@ function PaySuccess({ result }) {
   const [review, setReview] = useState("");
   const [sent, setSent] = useState(false);
   return (
-    <motion.div key="success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} style={{ position: "relative", height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
+    <motion.div key="success" style={{ position: "relative", height: "100%", width: "100%", display: "flex", flexDirection: "column", background: c.surface }}>
       <Confetti />
       <div style={{ display: "grid", placeItems: "center", paddingTop: "max(16px, env(safe-area-inset-top))", paddingBottom: SP.sm }}><Logo h={24} /></div>
       <div style={{ flex: 1, overflowY: "auto", padding: `${SP.lg}px ${PAD}px`, paddingBottom: "max(40px, calc(env(safe-area-inset-bottom) + 24px))" }} className="no-scrollbar">
@@ -1107,7 +1107,7 @@ export default function AvlaPayment() {
   return (
     <Shell>
       <AnimatePresence mode="wait">
-        {screen === "splash" && <motion.div key="s" style={{ height: "100%" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}><Splash /></motion.div>}
+        {screen === "splash" && <motion.div key="s" style={{ height: "100%" }}><Splash /></motion.div>}
         {screen === "bill" && <ActiveBill key="b" bill={OPEN_BILL} onPay={pay} />}
         {screen === "processing" && <Processing key="pr" />}
         {screen === "success" && <PaySuccess key="su" result={result} />}
